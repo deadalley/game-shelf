@@ -1,0 +1,104 @@
+import { create } from 'zustand'
+import { DEFAULT_SETTINGS, type Game, type LibraryPayload, type Settings } from '@shared/types'
+
+export type Toast = { id: number; text: string; kind: 'info' | 'error' }
+
+interface LibraryState {
+  ready: boolean
+  scanning: boolean
+  library: LibraryPayload
+  settings: Settings
+  search: string
+  selectedId: string | null
+  editingId: string | null
+  addOpen: boolean
+  settingsOpen: boolean
+  collapsed: Record<string, boolean>
+  toasts: Toast[]
+
+  init(): Promise<void>
+  rescan(): Promise<void>
+  setLibrary(lib: LibraryPayload): void
+  updateSettings(patch: Partial<Settings>): void
+  setSearch(q: string): void
+  select(id: string | null): void
+  edit(id: string | null): void
+  setAddOpen(open: boolean): void
+  setSettingsOpen(open: boolean): void
+  toggleCollapsed(key: string): void
+  launch(game: Game): Promise<void>
+  install(game: Game): Promise<void>
+  toast(text: string, kind?: Toast['kind']): void
+}
+
+const api = window.gameshelf
+let toastId = 0
+let saveTimer: ReturnType<typeof setTimeout> | null = null
+
+export const useLibrary = create<LibraryState>((set, get) => ({
+  ready: false,
+  scanning: false,
+  library: { games: [], collections: [], report: [], scannedAt: 0 },
+  settings: DEFAULT_SETTINGS,
+  search: '',
+  selectedId: null,
+  editingId: null,
+  addOpen: false,
+  settingsOpen: false,
+  collapsed: {},
+  toasts: [],
+
+  async init() {
+    const [library, settings] = await Promise.all([api.getLibrary(), api.getSettings()])
+    // The main process rescans at startup; treat that as in-progress until the first update arrives.
+    set({ library, settings, ready: true, scanning: true })
+    api.onLibraryChanged((lib) => set({ library: lib, scanning: false }))
+  },
+
+  async rescan() {
+    set({ scanning: true })
+    try {
+      set({ library: await api.rescan() })
+    } finally {
+      set({ scanning: false })
+    }
+  },
+
+  setLibrary: (library) => set({ library }),
+
+  updateSettings(patch) {
+    set({ settings: { ...get().settings, ...patch } })
+    if (saveTimer) clearTimeout(saveTimer)
+    saveTimer = setTimeout(() => void api.setSettings(get().settings), 250)
+  },
+
+  setSearch: (search) => set({ search }),
+  select: (selectedId) => set({ selectedId }),
+  edit: (editingId) => set({ editingId }),
+  setAddOpen: (addOpen) => set({ addOpen }),
+  setSettingsOpen: (settingsOpen) => set({ settingsOpen }),
+  toggleCollapsed: (key) => set({ collapsed: { ...get().collapsed, [key]: !get().collapsed[key] } }),
+
+  async launch(game) {
+    if (!game.installed && game.install) return get().install(game)
+    get().toast(`Launching ${game.name}…`)
+    const res = await api.launch(game.id)
+    if (!res.ok) get().toast(res.error ?? 'Could not launch game', 'error')
+  },
+
+  async install(game) {
+    get().toast(`Opening ${game.name} in its launcher…`)
+    const res = await api.install(game.id)
+    if (!res.ok) get().toast(res.error ?? 'Could not start install', 'error')
+  },
+
+  toast(text, kind = 'info') {
+    const id = ++toastId
+    set({ toasts: [...get().toasts, { id, text, kind }] })
+    setTimeout(() => set({ toasts: get().toasts.filter((t) => t.id !== id) }), 3500)
+  }
+}))
+
+export function useGame(id: string | null): Game | undefined {
+  return useLibrary((s) => (id ? s.library.games.find((g) => g.id === id) : undefined))
+}

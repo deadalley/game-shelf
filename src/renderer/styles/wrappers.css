@@ -1,0 +1,164 @@
+/*
+ * Game case wrappers, loosely modelled on PS4 and Xbox One retail cases:
+ * a coloured plastic shell, a header band across the top, and the cover art under clear plastic.
+ * Only colours and proportions are borrowed; no official logos are used.
+ */
+
+.case {
+  --edge: max(3px, calc(var(--card-w) * 0.03));
+  --band: calc(var(--card-w) * 0.12);
+  position: relative;
+  padding: var(--edge);
+  padding-top: 0;
+  border-radius: max(4px, calc(var(--card-w) * 0.035));
+  box-shadow: var(--cover-shadow, var(--shadow-md));
+  transition: box-shadow 0.3s var(--ease);
+  overflow: hidden;
+}
+
+.card:hover .case {
+  box-shadow: var(--cover-shadow-hover, var(--shadow-lg));
+}
+
+.case .card-art {
+  border-radius: 1px;
+  box-shadow: none;
+}
+
+.case-band {
+  height: var(--band);
+  display: flex;
+  align-items: center;
+  gap: calc(var(--card-w) * 0.035);
+  padding: 0 calc(var(--card-w) * 0.04);
+  color: #fff;
+  font-weight: 800;
+  font-size: calc(var(--card-w) * 0.068);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* The clear plastic sleeve: a soft diagonal sheen and a bright rim. */
+.case::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.05) 28%,
+    transparent 45%,
+    transparent 75%,
+    rgba(255, 255, 255, 0.08)
+  );
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+/* Hinge ridge on the left edge */
+.case::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: calc(var(--edge) * 0.8);
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.25), rgba(255, 255, 255, 0.12));
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ---------- PS-style ---------- */
+
+.case.ps {
+  background: linear-gradient(180deg, #2a62c4, #1a4593);
+}
+
+.case.ps .case-band {
+  background: linear-gradient(180deg, #0b2f78, #062463);
+  margin: 0 calc(-1 * var(--edge));
+  padding-left: calc(var(--edge) + var(--card-w) * 0.05);
+  font-style: italic;
+  font-family: 'Arial Black', var(--font);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.case.ps .case-band .mark {
+  display: inline-block;
+  height: 55%;
+  aspect-ratio: 1;
+  background:
+    linear-gradient(135deg, transparent 45%, rgba(255, 255, 255, 0.95) 45% 55%, transparent 55%),
+    linear-gradient(45deg, transparent 45%, rgba(255, 255, 255, 0.55) 45% 55%, transparent 55%);
+  border-radius: 2px;
+}
+
+.case.ps .case-band .tail {
+  margin-left: auto;
+  font-size: 0.65em;
+  opacity: 0.7;
+  font-style: normal;
+  font-weight: 700;
+}
+
+/* ---------- Xbox-style ---------- */
+
+.case.xbox {
+  background: linear-gradient(180deg, #2b9a2b, #127a12);
+}
+
+.case.xbox .case-band {
+  background: linear-gradient(180deg, #1a8f1a, #0f6e0f);
+  margin: 0 calc(-1 * var(--edge));
+  padding-left: calc(var(--edge) + var(--card-w) * 0.05);
+  font-family: 'Segoe UI', var(--font);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.case.xbox .case-band .mark {
+  display: inline-block;
+  height: 62%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff 0 18%, #d9f2d9 30%, #9bd09b 60%, #5aa05a 100%);
+  box-shadow: inset -1px -1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.case.xbox .case-band .tail {
+  margin-left: auto;
+  font-size: 0.6em;
+  opacity: 0.75;
+}
+
+/* Pixel theme: chunkier, square cases */
+.theme-pixel .case {
+  border-radius: 0;
+  outline: 4px solid #120d22;
+}
+
+.theme-pixel .case::after {
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.2) 0 18%, transparent 18%);
+  box-shadow: none;
+}
+
+.theme-pixel .case .card-art {
+  outline: none;
+}
+
+.theme-pixel .case-band {
+  font-family: var(--pixel-font);
+  font-style: normal;
+  font-weight: 400;
+  font-size: calc(var(--card-w) * 0.05);
+}
+
+.theme-pixel .case .mark {
+  border-radius: 0 !important;
+}

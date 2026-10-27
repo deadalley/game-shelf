@@ -1,0 +1,332 @@
+/*
+ * Shelf themes. Each theme styles `.stage` (the wall behind the games), `.plank`
+ * (the board games stand on, positioned right under the covers) and a few text tokens.
+ */
+
+.stage {
+  --plank-h: 0px;
+  --plank-overhang: 32px;
+  transition: background 0.5s var(--ease);
+}
+
+.plank {
+  top: var(--art-h);
+  left: calc(-1 * var(--plank-overhang));
+  right: calc(-1 * var(--plank-overhang));
+  height: var(--plank-h);
+}
+
+.shelf-row {
+  align-items: flex-start;
+}
+
+.card-meta {
+  padding-top: calc(var(--plank-h) + 8px);
+}
+
+/* ---------- Clean ---------- */
+
+.theme-clean {
+  background: var(--bg);
+  --row-space: 30px;
+}
+
+.theme-clean .plank {
+  display: none;
+}
+
+/* ---------- Old wooden shelf ---------- */
+
+.theme-old {
+  --plank-h: 26px;
+  --row-space: 38px;
+  --shelf-heading: #f3e6d0;
+  --shelf-heading-2: #c9ac86;
+  --shelf-text: #f6ead6;
+  --shelf-text-2: #cfb595;
+  --cover-radius: 3px;
+  --cover-shadow: 6px 0 10px -4px rgba(0, 0, 0, 0.55), -2px 0 6px -3px rgba(0, 0, 0, 0.4), 0 2px 3px rgba(0, 0, 0, 0.5);
+  --cover-shadow-hover: 10px 6px 22px rgba(0, 0, 0, 0.6);
+  background-color: #3a2416;
+  background-image:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 200, 140, 0.18), transparent 60%),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.22) 0 2px, transparent 2px 180px),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.025) 0 1px,
+      transparent 1px 7px,
+      rgba(0, 0, 0, 0.04) 7px 9px,
+      transparent 9px 23px
+    ),
+    linear-gradient(180deg, #4a2e1c, #2e1c10);
+  background-attachment: local;
+}
+
+.theme-old .stage-inner {
+  box-shadow:
+    inset 22px 0 0 #5b3920,
+    inset 26px 0 10px rgba(0, 0, 0, 0.45),
+    inset -22px 0 0 #5b3920,
+    inset -26px 0 10px rgba(0, 0, 0, 0.45);
+  padding-left: 58px;
+  padding-right: 58px;
+}
+
+.theme-old .plank {
+  left: -40px;
+  right: -40px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0 2px, transparent 2px),
+    linear-gradient(180deg, transparent 0 9px, rgba(0, 0, 0, 0.35) 9px 10px, transparent 10px),
+    repeating-linear-gradient(
+      92deg,
+      rgba(0, 0, 0, 0.09) 0 3px,
+      transparent 3px 11px,
+      rgba(255, 255, 255, 0.05) 11px 13px,
+      transparent 13px 31px
+    ),
+    repeating-linear-gradient(88deg, transparent 0 60px, rgba(60, 30, 10, 0.25) 60px 64px, transparent 64px 140px),
+    linear-gradient(180deg, #a26c3f 0 9px, #8a5530 10px, #6e4022);
+  box-shadow:
+    0 14px 18px -6px rgba(0, 0, 0, 0.65),
+    0 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+.theme-old .plank::after {
+  /* Shadow cast on the wall right under the board */
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 30px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.45), transparent);
+}
+
+.theme-old .group-header h2 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 700;
+  font-size: 19px;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+}
+
+/* ---------- Modern glass shelf ---------- */
+
+.theme-modern {
+  --plank-h: 12px;
+  --row-space: 34px;
+  --cover-radius: 6px;
+  --cover-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.35), 0 2px 4px rgba(0, 0, 0, 0.12);
+  --cover-shadow-hover: 0 22px 40px -12px rgba(0, 0, 0, 0.45);
+  background:
+    radial-gradient(1200px 500px at 15% -10%, color-mix(in srgb, var(--surface) 90%, #c9c3b8), transparent 70%),
+    radial-gradient(900px 500px at 100% 0%, color-mix(in srgb, var(--surface-2) 85%, #b8bec6), transparent 70%),
+    var(--bg);
+  background-attachment: local;
+}
+
+.theme-modern .plank {
+  left: -24px;
+  right: -24px;
+  border-radius: 3px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.85) 0 1px,
+      rgba(255, 255, 255, 0.35) 1px 4px,
+      rgba(255, 255, 255, 0.12) 4px
+    ),
+    linear-gradient(90deg, rgba(160, 170, 180, 0.25), rgba(220, 225, 230, 0.4) 50%, rgba(160, 170, 180, 0.25));
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 18px 26px -14px rgba(0, 0, 0, 0.35),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.08);
+}
+
+.theme-modern .plank::before {
+  /* Metal brackets */
+  content: '';
+  position: absolute;
+  inset: 100% 8% auto 8%;
+  height: 10px;
+  background:
+    linear-gradient(90deg, #9aa0a6, #d3d6da 50%, #8b9096) left / 6px 100% no-repeat,
+    linear-gradient(90deg, #9aa0a6, #d3d6da 50%, #8b9096) right / 6px 100% no-repeat;
+  opacity: 0.8;
+}
+
+@media (prefers-color-scheme: dark) {
+  .theme-modern {
+    background:
+      radial-gradient(1200px 500px at 15% -10%, #2a2a2f, transparent 70%),
+      radial-gradient(900px 500px at 100% 0%, #24262b, transparent 70%), #151517;
+    background-attachment: local;
+  }
+  .theme-modern .plank {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.45) 0 1px,
+        rgba(255, 255, 255, 0.12) 1px 4px,
+        rgba(255, 255, 255, 0.04) 4px
+      ),
+      linear-gradient(90deg, rgba(90, 96, 104, 0.35), rgba(150, 156, 164, 0.3) 50%, rgba(90, 96, 104, 0.35));
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 18px 30px -12px rgba(0, 0, 0, 0.7);
+  }
+}
+
+/* ---------- Pixel art shelf ---------- */
+
+.theme-pixel {
+  --plank-h: 24px;
+  --row-space: 34px;
+  --cover-radius: 0;
+  --cover-shadow: 6px 6px 0 rgba(0, 0, 0, 0.45);
+  --cover-shadow-hover: 9px 9px 0 rgba(0, 0, 0, 0.45);
+  --shelf-heading: #ffe9b0;
+  --shelf-heading-2: #b9a4ff;
+  --shelf-text: #fff6dc;
+  --shelf-text-2: #b9b0d8;
+  --pixel-font: 'Press Start 2P', monospace;
+  background-color: #2b2147;
+  /* Brick wall drawn from 4px "pixels" */
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='32' shape-rendering='crispEdges'><rect width='64' height='32' fill='%232b2147'/><rect y='0' width='64' height='4' fill='%231f1838'/><rect y='16' width='64' height='4' fill='%231f1838'/><rect x='0' y='4' width='4' height='12' fill='%231f1838'/><rect x='32' y='20' width='4' height='12' fill='%231f1838'/><rect x='8' y='8' width='8' height='4' fill='%23342957'/><rect x='44' y='24' width='4' height='4' fill='%23342957'/></svg>");
+  background-size: 64px 32px;
+  background-attachment: local;
+  image-rendering: pixelated;
+}
+
+.theme-pixel .plank {
+  left: -32px;
+  right: -32px;
+  background:
+    linear-gradient(#f2b45a 0 4px, transparent 4px),
+    linear-gradient(transparent 0 4px, #c97a2c 4px 16px, #8f4f1c 16px 20px, #4a2410 20px), #c97a2c;
+  background-size: 100% 100%;
+  box-shadow:
+    0 4px 0 #2a120a,
+    0 12px 0 rgba(0, 0, 0, 0.35);
+}
+
+.theme-pixel .plank::before {
+  /* wood grain dashes */
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 8px;
+  height: 4px;
+  background: repeating-linear-gradient(
+    90deg,
+    #a65f22 0 24px,
+    transparent 24px 40px,
+    #a65f22 40px 48px,
+    transparent 48px 96px
+  );
+}
+
+.theme-pixel .card-art {
+  outline: 4px solid #120d22;
+  outline-offset: 0;
+}
+
+.theme-pixel .card-tilt {
+  transition: transform 0.2s steps(3);
+}
+
+.theme-pixel .group-header h2,
+.theme-pixel .card-title,
+.theme-pixel .empty h3 {
+  font-family: var(--pixel-font);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.theme-pixel .group-header h2 {
+  font-size: 13px;
+  text-shadow: 3px 3px 0 #120d22;
+}
+
+.theme-pixel .card-title {
+  font-size: 8.5px;
+  line-height: 1.6;
+}
+
+.theme-pixel .card-sub {
+  font-family: var(--pixel-font);
+  font-size: 7.5px;
+}
+
+.theme-pixel .badge {
+  border-radius: 0;
+  font-family: var(--pixel-font);
+  font-size: 7px;
+  background: #120d22;
+}
+
+.theme-pixel .play-btn {
+  border-radius: 0;
+  box-shadow: 4px 4px 0 #120d22;
+}
+
+.theme-pixel .placeholder {
+  font-family: var(--pixel-font);
+  font-size: 10px;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+/* ---------- Layout picker thumbnails ---------- */
+
+.thumb.t-clean {
+  background: var(--surface-2);
+}
+.thumb.t-old {
+  background: linear-gradient(180deg, #4a2e1c, #2e1c10);
+}
+.thumb.t-modern {
+  background: linear-gradient(160deg, var(--surface), var(--surface-3));
+}
+.thumb.t-pixel {
+  background: #2b2147;
+}
+.thumb .mini-books {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 14px;
+  display: flex;
+  gap: 4px;
+  align-items: flex-end;
+}
+.thumb .mini-books i {
+  display: block;
+  width: 14px;
+  height: 22px;
+  border-radius: 2px;
+}
+.thumb .mini-plank {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  height: 6px;
+}
+.thumb.t-old .mini-plank {
+  background: linear-gradient(#a26c3f, #6e4022);
+}
+.thumb.t-modern .mini-plank {
+  background: rgba(255, 255, 255, 0.6);
+  border-top: 1px solid #fff;
+  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.15);
+  height: 4px;
+}
+.thumb.t-pixel .mini-plank {
+  background: linear-gradient(#f2b45a 0 2px, #c97a2c 2px 4px, #4a2410 4px);
+}
+.thumb.t-pixel .mini-books i {
+  border-radius: 0;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+}
