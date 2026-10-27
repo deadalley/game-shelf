@@ -1,7 +1,7 @@
 {
   "name": "gameshelf",
   "productName": "GameShelf",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "All your PC games from every launcher, on one shelf.",
   "author": "deadalley",
   "license": "MIT",
@@ -9,12 +9,14 @@
   "main": "./out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
+    "dev:mock": "node scripts/dev-mock.mjs",
+    "preview:mock": "node scripts/dev-mock.mjs --preview",
     "build": "electron-vite build",
     "start": "electron-vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "format": "prettier --write .",
-    "fixtures": "vite-node scripts/make-fixtures.ts .fixtures",
+    "fixtures": "vite-node scripts/make-fixtures.ts .fixtures/machine",
     "dist": "electron-vite build && electron-builder --win --x64 --publish never"
   },
   "dependencies": {

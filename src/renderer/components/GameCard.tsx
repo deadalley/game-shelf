@@ -1,5 +1,5 @@
 import { memo, useRef } from 'react'
-import { Clock, Download, EyeOff, Play } from 'lucide-react'
+import { Clock, Download, Eye, EyeOff, Play } from 'lucide-react'
 import type { Game, Settings } from '@shared/types'
 import { formatPlaytime } from '../lib/organize'
 import { WrappedCover } from './Cover'
@@ -9,9 +9,11 @@ interface Props {
   settings: Pick<Settings, 'wrapper' | 'showTitles' | 'showPlaytime' | 'theme'>
   onOpen(game: Game): void
   onPlay(game: Game): void
+  onToggleHidden(game: Game): void
+  onContextMenu(game: Game, x: number, y: number): void
 }
 
-function GameCardInner({ game, settings, onOpen, onPlay }: Props): JSX.Element {
+function GameCardInner({ game, settings, onOpen, onPlay, onToggleHidden, onContextMenu }: Props): JSX.Element {
   const tiltRef = useRef<HTMLDivElement>(null)
   const pixel = settings.theme === 'pixel'
   const playtime = formatPlaytime(game.playtimeMinutes)
@@ -19,7 +21,8 @@ function GameCardInner({ game, settings, onOpen, onPlay }: Props): JSX.Element {
 
   const onMove = (e: React.MouseEvent): void => {
     const el = tiltRef.current
-    if (!el) return
+    // Hold the tilt still over buttons, or they slide out from under the cursor mid-click.
+    if (!el || (e.target as HTMLElement).closest('button')) return
     const r = el.getBoundingClientRect()
     const x = (e.clientX - r.left) / r.width
     const y = (e.clientY - r.top) / r.height
@@ -51,6 +54,10 @@ function GameCardInner({ game, settings, onOpen, onPlay }: Props): JSX.Element {
       }}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
+      onContextMenu={(e) => {
+        e.preventDefault()
+        onContextMenu(game, e.clientX, e.clientY)
+      }}
     >
       <div className="card-tilt" ref={tiltRef}>
         <WrappedCover game={game} wrapper={settings.wrapper}>
@@ -64,12 +71,25 @@ function GameCardInner({ game, settings, onOpen, onPlay }: Props): JSX.Element {
           </div>
           <div className="card-overlay">
             <button
+              className="hide-btn"
+              title={game.hidden ? 'Show in library' : 'Hide from library'}
+              aria-label={game.hidden ? `Show ${game.name}` : `Hide ${game.name}`}
+              onClick={(e) => {
+                e.stopPropagation()
+                onToggleHidden(game)
+              }}
+              onDoubleClick={(e) => e.stopPropagation()}
+            >
+              {game.hidden ? <Eye size={14} /> : <EyeOff size={14} />}
+            </button>
+            <button
               className={`play-btn${canPlay ? '' : ' install'}`}
               aria-label={canPlay ? `Play ${game.name}` : `Install ${game.name}`}
               onClick={(e) => {
                 e.stopPropagation()
                 onPlay(game)
               }}
+              onDoubleClick={(e) => e.stopPropagation()}
             >
               {canPlay ? (
                 <Play size={22} fill="currentColor" />

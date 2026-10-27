@@ -8,8 +8,9 @@ import { cacheImage, needsResolve, resolveCover, searchSteamGridDb, type CoverDe
 import { launch } from './launcher'
 import { COVER_SCHEME, allCollections, buildGames, coverFile } from './library'
 import { createScanContext } from './scanners/context'
-import { scanAll } from './scanners'
+import { SCANNERS, scanAll } from './scanners'
 import { mapLimit } from './util/fs'
+import { version } from '../../package.json'
 
 if (process.env.GAMESHELF_USER_DATA) app.setPath('userData', process.env.GAMESHELF_USER_DATA)
 
@@ -46,14 +47,21 @@ function findGame(id: string): Game | undefined {
 }
 
 async function resolveMissingCovers(): Promise<void> {
+  const disabled = store.data.settings.disabledServices
   const pending = store.data.scanned.games.filter(
-    (g) => !store.data.overrides[g.id]?.cover && needsResolve(store.data.covers[g.id])
+    (g) => !disabled.includes(g.service) && !store.data.overrides[g.id]?.cover && needsResolve(store.data.covers[g.id])
   )
   await mapLimit(pending, 4, async (g) => {
     store.data.covers[g.id] = await resolveCover(coverDeps, g)
     store.save()
     broadcast()
   })
+}
+
+/** Forgets failed cover lookups and tries again. */
+function refreshCovers(): void {
+  for (const entry of Object.values(store.data.covers)) delete entry.failedAt
+  void resolveMissingCovers()
 }
 
 async function rescan(): Promise<LibraryPayload> {
@@ -65,8 +73,14 @@ async function rescan(): Promise<LibraryPayload> {
         { service: 'steam', ok: false, found: 0, message: 'Launcher scanning only works on Windows', durationMs: 0 }
       ]
     } else {
-      const result = await scanAll(ctx)
-      store.data.scanned = { ...result, scannedAt: Date.now() }
+      const disabled = store.data.settings.disabledServices
+      const result = await scanAll(
+        ctx,
+        SCANNERS.filter((s) => !disabled.includes(s.service))
+      )
+      // Keep the last known games of switched-off launchers so switching them back on is instant.
+      const kept = store.data.scanned.games.filter((g) => disabled.includes(g.service))
+      store.data.scanned = { ...result, games: [...result.games, ...kept], scannedAt: Date.now() }
     }
     store.save()
     void resolveMissingCovers()
@@ -195,16 +209,30 @@ function registerIpc(): void {
 
   ipcMain.handle('settings:get', () => store.data.settings)
   ipcMain.handle('settings:set', (_e, patch: Partial<Settings>) => {
-    const keyChanged = patch.steamGridDbKey !== undefined && patch.steamGridDbKey !== store.data.settings.steamGridDbKey
-    store.data.settings = { ...store.data.settings, ...patch }
-    if (keyChanged) {
+    const prev = store.data.settings
+    store.data.settings = { ...prev, ...patch }
+    const next = store.data.settings
+    if (patch.steamGridDbKey !== undefined && patch.steamGridDbKey !== prev.steamGridDbKey) {
       // A new key may find covers that failed before.
-      for (const entry of Object.values(store.data.covers)) delete entry.failedAt
-      void resolveMissingCovers()
+      refreshCovers()
+    }
+    if (patch.colorMode !== undefined) nativeTheme.themeSource = next.colorMode
+    if (patch.disabledServices !== undefined) {
+      const enabled = prev.disabledServices.filter((s) => !next.disabledServices.includes(s))
+      if (enabled.length) void rescan().then(() => broadcast())
+      else if (next.disabledServices.length !== prev.disabledServices.length) broadcast()
     }
     store.save()
     return store.data.settings
   })
+
+  ipcMain.handle('covers:refresh', () => refreshCovers())
+  ipcMain.handle('app:openData', () => void shell.openPath(app.getPath('userData')))
+  ipcMain.handle('app:info', () => ({
+    version,
+    dataPath: app.getPath('userData'),
+    mock: !!process.env.GAMESHELF_FIXTURES
+  }))
 }
 
 function createWindow(): void {
@@ -257,6 +285,7 @@ if (!app.requestSingleInstanceLock()) {
     app.setAppUserModelId('com.deadalley.gameshelf')
     Menu.setApplicationMenu(null)
     store = new Store(join(app.getPath('userData'), 'library.json'))
+    nativeTheme.themeSource = store.data.settings.colorMode
     coverDeps = {
       dir: join(app.getPath('userData'), 'covers'),
       fetch: (url, init) => net.fetch(url, init),

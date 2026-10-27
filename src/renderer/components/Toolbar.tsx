@@ -1,53 +1,16 @@
 import { useMemo } from 'react'
-import { motion } from 'framer-motion'
 import { ArrowDownUp, ChevronDown, LayoutGrid, Layers, SlidersHorizontal } from 'lucide-react'
-import {
-  SERVICES,
-  SERVICE_LABELS,
-  type GroupId,
-  type InstallFilter,
-  type Service,
-  type SortId,
-  type ThemeId,
-  type WrapperId
-} from '@shared/types'
+import { SERVICES, SERVICE_LABELS, type InstallFilter, type Service } from '@shared/types'
 import { SERVICE_COLORS } from '../lib/services'
 import { useLibrary } from '../state/useLibrary'
+import { GROUPS, SORTS, Segmented, ThemePicker, WrapperPicker } from './LayoutPicker'
 import { MenuItem, Popover, SwitchRow } from './Popover'
-
-const SORTS: { id: SortId; label: string }[] = [
-  { id: 'name', label: 'Name' },
-  { id: 'lastPlayed', label: 'Last played' },
-  { id: 'playtime', label: 'Most played' },
-  { id: 'installedAt', label: 'Recently installed' }
-]
-
-const GROUPS: { id: GroupId; label: string }[] = [
-  { id: 'none', label: 'One shelf' },
-  { id: 'service', label: 'By service' },
-  { id: 'collection', label: 'By collection' }
-]
 
 const INSTALL: { id: InstallFilter; label: string }[] = [
   { id: 'all', label: 'All' },
   { id: 'installed', label: 'Installed' },
   { id: 'uninstalled', label: 'Not installed' }
 ]
-
-const THEMES: { id: ThemeId; label: string }[] = [
-  { id: 'clean', label: 'Clean' },
-  { id: 'old', label: 'Old shelf' },
-  { id: 'modern', label: 'Modern shelf' },
-  { id: 'pixel', label: 'Pixel shelf' }
-]
-
-const WRAPPERS: { id: WrapperId; label: string }[] = [
-  { id: 'none', label: 'No case' },
-  { id: 'ps', label: 'PS case' },
-  { id: 'xbox', label: 'Xbox case' }
-]
-
-const BOOK_COLORS = ['#c2b8a3', '#8aa1b1', '#b48b7d', '#9fae8f', '#a99bb8']
 
 export function Toolbar(): JSX.Element {
   const settings = useLibrary((s) => s.settings)
@@ -197,98 +160,10 @@ export function Toolbar(): JSX.Element {
         )}
       >
         <h4>Shelf</h4>
-        <div className="layout-grid">
-          {THEMES.map((t) => (
-            <button
-              key={t.id}
-              className={`layout-option${settings.theme === t.id ? ' active' : ''}`}
-              onClick={() => update({ theme: t.id })}
-            >
-              <div className={`thumb t-${t.id}`}>
-                <div className="mini-books">
-                  {BOOK_COLORS.map((c) => (
-                    <i key={c} style={{ background: c }} />
-                  ))}
-                </div>
-                <div className="mini-plank" />
-              </div>
-              {t.label}
-            </button>
-          ))}
-        </div>
+        <ThemePicker value={settings.theme} onChange={(theme) => update({ theme })} />
         <h4>Covers</h4>
-        <div className="layout-grid three">
-          {WRAPPERS.map((w) => (
-            <button
-              key={w.id}
-              className={`layout-option${settings.wrapper === w.id ? ' active' : ''}`}
-              onClick={() => update({ wrapper: w.id })}
-            >
-              <div className="thumb" style={{ display: 'grid', placeItems: 'center', background: 'var(--surface-2)' }}>
-                <WrapperThumb id={w.id} />
-              </div>
-              {w.label}
-            </button>
-          ))}
-        </div>
+        <WrapperPicker value={settings.wrapper} onChange={(wrapper) => update({ wrapper })} />
       </Popover>
-    </div>
-  )
-}
-
-function WrapperThumb({ id }: { id: WrapperId }): JSX.Element {
-  const band = id === 'ps' ? '#0b2f78' : id === 'xbox' ? '#1a8f1a' : undefined
-  const shell = id === 'ps' ? '#2a62c4' : id === 'xbox' ? '#2b9a2b' : undefined
-  return (
-    <div
-      style={{
-        width: 30,
-        height: 42,
-        borderRadius: 3,
-        padding: shell ? '0 2px 2px' : 0,
-        background: shell ?? 'transparent',
-        boxShadow: '0 2px 5px rgba(0,0,0,.2)',
-        display: 'flex',
-        flexDirection: 'column'
-      }}
-    >
-      {band && <div style={{ height: 5, background: band, margin: '0 -2px' }} />}
-      <div style={{ flex: 1, background: 'linear-gradient(160deg,#8aa1b1,#3d4a55)', borderRadius: shell ? 1 : 3 }} />
-    </div>
-  )
-}
-
-function Segmented<T extends string>({
-  id,
-  options,
-  value,
-  onChange
-}: {
-  id: string
-  options: { id: T; label: string }[]
-  value: T
-  onChange(v: T): void
-}): JSX.Element {
-  return (
-    <div className="segmented" role="radiogroup">
-      {options.map((o) => (
-        <button
-          key={o.id}
-          role="radio"
-          aria-checked={value === o.id}
-          className={value === o.id ? 'active' : ''}
-          onClick={() => onChange(o.id)}
-        >
-          {value === o.id && (
-            <motion.span
-              layoutId={`seg-${id}`}
-              className="seg-bg"
-              transition={{ type: 'spring', stiffness: 500, damping: 38 }}
-            />
-          )}
-          {o.label}
-        </button>
-      ))}
     </div>
   )
 }

@@ -79,6 +79,10 @@ export type WrapperId = 'none' | 'ps' | 'xbox'
 export type SortId = 'name' | 'lastPlayed' | 'playtime' | 'installedAt'
 export type GroupId = 'none' | 'service' | 'collection'
 export type InstallFilter = 'all' | 'installed' | 'uninstalled'
+export type ColorMode = 'system' | 'light' | 'dark'
+
+/** Services the user can switch off. Custom games are always shown. */
+export const LAUNCHERS: Service[] = SERVICES.filter((s) => s !== 'custom')
 
 export interface Settings {
   steamGridDbKey: string
@@ -92,6 +96,9 @@ export interface Settings {
   showPlaytime: boolean
   showHidden: boolean
   coverSize: number // px width of a cover
+  disabledServices: Service[] // launchers that are neither scanned nor shown
+  colorMode: ColorMode
+  animations: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -105,7 +112,10 @@ export const DEFAULT_SETTINGS: Settings = {
   showTitles: true,
   showPlaytime: true,
   showHidden: false,
-  coverSize: 150
+  coverSize: 150,
+  disabledServices: [],
+  colorMode: 'system',
+  animations: true
 }
 
 export interface ScanReportEntry {
@@ -136,5 +146,8 @@ export interface GameShelfApi {
   searchCovers(name: string): Promise<{ ok: boolean; covers: string[]; error?: string }>
   getSettings(): Promise<Settings>
   setSettings(patch: Partial<Settings>): Promise<Settings>
+  refreshCovers(): Promise<void>
+  openDataFolder(): Promise<void>
+  getAppInfo(): Promise<{ version: string; dataPath: string; mock: boolean }>
   onLibraryChanged(cb: (lib: LibraryPayload) => void): () => void
 }

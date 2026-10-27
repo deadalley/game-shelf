@@ -5,6 +5,7 @@ import type { Game } from '@shared/types'
 import { chunk, filterGames, groupGames } from '../lib/organize'
 import { useLibrary } from '../state/useLibrary'
 import { coverHeight } from './Cover'
+import { ContextMenu, type MenuTarget } from './ContextMenu'
 import { GameCard } from './GameCard'
 
 /** Above this many visible games, skip layout animations to keep things smooth. */
@@ -29,7 +30,8 @@ export function Shelf(): JSX.Element {
   const collapsed = useLibrary((s) => s.collapsed)
   const scanning = useLibrary((s) => s.scanning)
   const ready = useLibrary((s) => s.ready)
-  const { toggleCollapsed, select, launch, rescan, setAddOpen } = useLibrary.getState()
+  const { toggleCollapsed, select, launch, rescan, setAddOpen, toggleHidden } = useLibrary.getState()
+  const [menu, setMenu] = useState<MenuTarget | null>(null)
 
   const innerRef = useRef<HTMLDivElement>(null)
   const width = useWidth(innerRef)
@@ -56,6 +58,9 @@ export function Shelf(): JSX.Element {
   )
   const onOpen = useCallback((g: Game) => select(g.id), [select])
   const onPlay = useCallback((g: Game) => void launch(g), [launch])
+  const onToggleHidden = useCallback((g: Game) => void toggleHidden(g), [toggleHidden])
+  const onContextMenu = useCallback((game: Game, x: number, y: number) => setMenu({ game, x, y }), [])
+  const closeMenu = useCallback(() => setMenu(null), [])
 
   const style = {
     '--card-w': `${cardW}px`,
@@ -114,7 +119,14 @@ export function Shelf(): JSX.Element {
                                   exit={{ opacity: 0, scale: 0.92 }}
                                   transition={{ type: 'spring', stiffness: 380, damping: 34, mass: 0.8 }}
                                 >
-                                  <GameCard game={game} settings={cardSettings} onOpen={onOpen} onPlay={onPlay} />
+                                  <GameCard
+                                    game={game}
+                                    settings={cardSettings}
+                                    onOpen={onOpen}
+                                    onPlay={onPlay}
+                                    onToggleHidden={onToggleHidden}
+                                    onContextMenu={onContextMenu}
+                                  />
                                 </motion.div>
                               ))}
                             </AnimatePresence>
@@ -129,6 +141,7 @@ export function Shelf(): JSX.Element {
           </LayoutGroup>
         )}
       </div>
+      {menu && <ContextMenu target={menu} onClose={closeMenu} />}
     </main>
   )
 }

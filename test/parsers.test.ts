@@ -109,3 +109,27 @@ describe('buildGames', () => {
     expect(custom.playtimeMinutes).toBeUndefined()
   })
 })
+
+describe('disabled libraries', () => {
+  it('buildGames drops games from switched-off launchers but keeps custom games', () => {
+    const data: StoreData = {
+      version: 1,
+      settings: { ...DEFAULT_SETTINGS, disabledServices: ['steam'] },
+      overrides: {},
+      customGames: [{ id: 'custom:x', name: 'Mine', exePath: 'C:\\m.exe', cover: '/c.png', addedAt: 1 }],
+      userCollections: [],
+      scanned: {
+        games: [
+          { id: 'steam:1', service: 'steam', name: 'A', installed: true },
+          { id: 'gog:1', service: 'gog', name: 'B', installed: true }
+        ],
+        collections: [],
+        report: [],
+        scannedAt: 0
+      },
+      steamNames: {},
+      covers: {}
+    }
+    expect(buildGames(data).map((g) => g.id)).toEqual(['gog:1', 'custom:x'])
+  })
+})

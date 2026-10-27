@@ -5,6 +5,7 @@ import { useLibrary } from '../state/useLibrary'
 export function TopBar(): JSX.Element {
   const search = useLibrary((s) => s.search)
   const scanning = useLibrary((s) => s.scanning)
+  const settingsOpen = useLibrary((s) => s.settingsOpen)
   const total = useLibrary((s) => s.library.games.filter((g) => !g.hidden).length)
   const { setSearch, rescan, setAddOpen, setSettingsOpen } = useLibrary.getState()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -53,7 +54,12 @@ export function TopBar(): JSX.Element {
         >
           <RefreshCw size={16} className={scanning ? 'spin' : ''} />
         </button>
-        <button className="btn ghost icon" title="Settings" onClick={() => setSettingsOpen(true)}>
+        <button
+          className={`btn ghost icon${settingsOpen ? ' active' : ''}`}
+          title="Settings"
+          aria-pressed={settingsOpen}
+          onClick={() => setSettingsOpen(!settingsOpen)}
+        >
           <Settings2 size={16} />
         </button>
         <button className="btn primary" onClick={() => setAddOpen(true)}>

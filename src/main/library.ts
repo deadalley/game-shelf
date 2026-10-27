@@ -27,7 +27,8 @@ export function customToScanned(data: StoreData): ScannedGame[] {
 
 /** Applies user overrides to scanned games, producing what the UI shows. */
 export function buildGames(data: StoreData): Game[] {
-  const all = [...data.scanned.games, ...customToScanned(data)]
+  const disabled = new Set(data.settings.disabledServices)
+  const all = [...data.scanned.games.filter((g) => !disabled.has(g.service)), ...customToScanned(data)]
   return all.map((g) => {
     const o = data.overrides[g.id] ?? {}
     const file = coverFile(data, g.id)

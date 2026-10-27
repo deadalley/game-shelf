@@ -11,7 +11,7 @@ export function GameDrawer(): JSX.Element {
   const selectedId = useLibrary((s) => s.selectedId)
   const wrapper = useLibrary((s) => s.settings.wrapper)
   const game = useGame(selectedId)
-  const { select, edit, launch, setLibrary } = useLibrary.getState()
+  const { select, edit, launch, toggleHidden } = useLibrary.getState()
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
@@ -84,7 +84,7 @@ export function GameDrawer(): JSX.Element {
                 <button
                   className="btn lg icon"
                   title={game.hidden ? 'Show in library' : 'Hide from library'}
-                  onClick={async () => setLibrary(await window.gameshelf.updateGame(game.id, { hidden: !game.hidden }))}
+                  onClick={() => void toggleHidden(game)}
                 >
                   {game.hidden ? <Eye size={16} /> : <EyeOff size={16} />}
                 </button>

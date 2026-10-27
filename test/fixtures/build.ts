@@ -73,8 +73,71 @@ export const STEAM_UNINSTALLED = [
   { appid: '2002', name: 'Moonlit Orchard', playtime: 95, last: NOW - day * 400 }
 ]
 
-export async function buildFixtures(root: string): Promise<string> {
+const WORDS_A = [
+  'Crimson',
+  'Silent',
+  'Hollow',
+  'Iron',
+  'Velvet',
+  'Frozen',
+  'Golden',
+  'Echo',
+  'Wild',
+  'Paper',
+  'Neon',
+  'Ashen'
+]
+const WORDS_B = [
+  'Harbor',
+  'Crown',
+  'Signal',
+  'Garden',
+  'Frontier',
+  'Tide',
+  'Reverie',
+  'Circuit',
+  'Lantern',
+  'Atlas',
+  'Grove',
+  'Spire'
+]
+
+/** Deterministic pseudo-random numbers so generated libraries are the same on every run. */
+function rng(seed: number): () => number {
+  return () => {
+    seed = (seed * 1664525 + 1013904223) >>> 0
+    return seed / 2 ** 32
+  }
+}
+
+/** Extra Steam games for testing large libraries. */
+export function generatedSteamGames(
+  count: number
+): { appid: string; name: string; playtime: number; last: number; lib: string; collection?: string }[] {
+  const rand = rng(42)
+  return Array.from({ length: count }, (_, i) => {
+    const played = rand() < 0.7
+    const pick = rand()
+    return {
+      appid: String(5000 + i),
+      name: `${WORDS_A[Math.floor(rand() * WORDS_A.length)]} ${WORDS_B[Math.floor(rand() * WORDS_B.length)]} ${i + 1}`,
+      playtime: played ? Math.floor(rand() ** 3 * 20000) : 0,
+      last: played ? Math.floor(NOW - rand() * day * 900) : 0,
+      lib: rand() < 0.5 ? 'main' : 'second',
+      collection: pick < 0.15 ? 'Backlog' : pick < 0.25 ? 'Cozy' : pick < 0.32 ? 'Strategy' : undefined
+    }
+  })
+}
+
+export interface FixtureOptions {
+  /** Number of extra generated Steam games (default 0). */
+  extraGames?: number
+}
+
+export async function buildFixtures(root: string, opts: FixtureOptions = {}): Promise<string> {
   root = resolve(root)
+  const extra = generatedSteamGames(opts.extraGames ?? 0)
+  const installed = [...STEAM_INSTALLED, ...extra]
   const steam = join(root, 'Program Files (x86)', 'Steam')
   const secondLib = join(root, 'SteamLibrary')
   const registry: Record<string, Record<string, string>> = {}
@@ -90,11 +153,11 @@ export async function buildFixtures(root: string): Promise<string> {
   "1" { "path" "${secondLib.replace(/\\/g, '\\\\')}" }
 }`
   )
-  for (const g of STEAM_INSTALLED) {
+  for (const g of installed) {
     const lib = g.lib === 'main' ? steam : secondLib
     write(
       join(lib, 'steamapps', `appmanifest_${g.appid}.acf`),
-      `"AppState"\n{\n\t"appid"\t\t"${g.appid}"\n\t"name"\t\t"${g.name}"\n\t"StateFlags"\t\t"4"\n\t"installdir"\t\t"${g.name}"\n\t"LastUpdated"\t\t"${NOW - day * (Number(g.appid) - 990) * 7}"\n}\n`
+      `"AppState"\n{\n\t"appid"\t\t"${g.appid}"\n\t"name"\t\t"${g.name}"\n\t"StateFlags"\t\t"4"\n\t"installdir"\t\t"${g.name}"\n\t"LastUpdated"\t\t"${NOW - day * ((Number(g.appid) * 37) % 1200)}"\n}\n`
     )
     write(join(steam, 'appcache', 'librarycache', g.appid, 'library_600x900.svg'), coverSvg(g.name, seed++))
   }
@@ -110,7 +173,7 @@ export async function buildFixtures(root: string): Promise<string> {
     join(steam, 'config', 'loginusers.vdf'),
     `"users" { "76561197960277073" { "AccountName" "player" "MostRecent" "1" } }`
   )
-  const apps = [...STEAM_INSTALLED, ...STEAM_UNINSTALLED, { appid: '3001', name: 'Some DLC', playtime: 30, last: NOW }]
+  const apps = [...installed, ...STEAM_UNINSTALLED, { appid: '3001', name: 'Some DLC', playtime: 30, last: NOW }]
     .filter((g) => g.playtime || g.last)
     .map((g) => `"${g.appid}" { "LastPlayed" "${g.last}" "Playtime" "${g.playtime}" }`)
     .join('\n')
@@ -118,6 +181,7 @@ export async function buildFixtures(root: string): Promise<string> {
     join(steam, 'userdata', '11345', 'config', 'localconfig.vdf'),
     `"UserLocalConfigStore" { "Software" { "Valve" { "Steam" { "apps" { ${apps} } } } } }`
   )
+  const extraIn = (c: string): number[] => extra.filter((g) => g.collection === c).map((g) => Number(g.appid))
   const coll = (id: string, name: string, added: number[]): [string, object] => [
     `user-collections.${id}`,
     { key: `user-collections.${id}`, timestamp: NOW, value: JSON.stringify({ id, name, added, removed: [] }) }
@@ -126,8 +190,9 @@ export async function buildFixtures(root: string): Promise<string> {
     join(steam, 'userdata', '11345', 'config', 'cloudstorage', 'cloud-storage-namespace-1.json'),
     JSON.stringify([
       coll('favorite', '', [1001, 1005]),
-      coll('uc-1', 'Cozy', [1004, 1006, 2002]),
-      coll('uc-2', 'Strategy', [1002, 1005]),
+      coll('uc-1', 'Cozy', [1004, 1006, 2002, ...extraIn('Cozy')]),
+      coll('uc-2', 'Strategy', [1002, 1005, ...extraIn('Strategy')]),
+      ...(extraIn('Backlog').length ? [coll('uc-3', 'Backlog', extraIn('Backlog'))] : []),
       coll('hidden', '', [1003])
     ])
   )

@@ -157,13 +157,13 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .theme-modern {
+  :root:not([data-theme='light']) .theme-modern {
     background:
       radial-gradient(1200px 500px at 15% -10%, #2a2a2f, transparent 70%),
       radial-gradient(900px 500px at 100% 0%, #24262b, transparent 70%), #151517;
     background-attachment: local;
   }
-  .theme-modern .plank {
+  :root:not([data-theme='light']) .theme-modern .plank {
     background:
       linear-gradient(
         180deg,
@@ -175,6 +175,25 @@
     border-color: rgba(255, 255, 255, 0.14);
     box-shadow: 0 18px 30px -12px rgba(0, 0, 0, 0.7);
   }
+}
+
+:root[data-theme='dark'] .theme-modern {
+  background:
+    radial-gradient(1200px 500px at 15% -10%, #2a2a2f, transparent 70%),
+    radial-gradient(900px 500px at 100% 0%, #24262b, transparent 70%), #151517;
+  background-attachment: local;
+}
+:root[data-theme='dark'] .theme-modern .plank {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.45) 0 1px,
+      rgba(255, 255, 255, 0.12) 1px 4px,
+      rgba(255, 255, 255, 0.04) 4px
+    ),
+    linear-gradient(90deg, rgba(90, 96, 104, 0.35), rgba(150, 156, 164, 0.3) 50%, rgba(90, 96, 104, 0.35));
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 18px 30px -12px rgba(0, 0, 0, 0.7);
 }
 
 /* ---------- Pixel art shelf ---------- */

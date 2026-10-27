@@ -3,9 +3,9 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import type { ScannedGame } from '@shared/types'
-import { scanAll } from '../src/main/scanners'
+import { SCANNERS, scanAll } from '../src/main/scanners'
 import { fixtureContext } from '../src/main/scanners/fixtureContext'
-import { buildFixtures } from './fixtures/build'
+import { buildFixtures, generatedSteamGames } from './fixtures/build'
 
 let dir: string
 let games: ScannedGame[]
@@ -128,5 +128,33 @@ describe('other launchers', () => {
 
   it('xbox builds an AppsFolder launch target', () => {
     expect(byService('xbox')[0].launch?.target).toBe('shell:AppsFolder\\Studio.FrontierForge_8wekyb3d8bbwe!Game')
+  })
+})
+
+describe('scanner selection', () => {
+  it('only runs the scanners it is given', async () => {
+    const enabled = SCANNERS.filter((s) => s.service !== 'epic' && s.service !== 'steam')
+    const res = await scanAll(fixtureContext(dir, {}), enabled)
+    expect(res.report.map((r) => r.service)).not.toContain('epic')
+    expect(res.games.some((g) => g.service === 'epic' || g.service === 'steam')).toBe(false)
+    expect(res.games.some((g) => g.service === 'gog')).toBe(true)
+  })
+})
+
+describe('generated fixtures', () => {
+  it('adds N extra Steam games', async () => {
+    const big = mkdtempSync(join(tmpdir(), 'gameshelf-big-'))
+    try {
+      await buildFixtures(big, { extraGames: 120 })
+      const res = await scanAll(
+        fixtureContext(big, {}),
+        SCANNERS.filter((s) => s.service === 'steam')
+      )
+      expect(res.games.filter((g) => g.installed)).toHaveLength(6 + 120)
+      expect(res.collections).toContain('Backlog')
+      expect(generatedSteamGames(3)).toEqual(generatedSteamGames(3)) // deterministic
+    } finally {
+      rmSync(big, { recursive: true, force: true })
+    }
   })
 })

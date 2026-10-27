@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { DEFAULT_SETTINGS, type Game, type LibraryPayload, type Settings } from '@shared/types'
 
-export type Toast = { id: number; text: string; kind: 'info' | 'error' }
+export type Toast = { id: number; text: string; kind: 'info' | 'error'; action?: { label: string; run(): void } }
 
 interface LibraryState {
   ready: boolean
@@ -28,7 +28,9 @@ interface LibraryState {
   toggleCollapsed(key: string): void
   launch(game: Game): Promise<void>
   install(game: Game): Promise<void>
-  toast(text: string, kind?: Toast['kind']): void
+  toggleHidden(game: Game): Promise<void>
+  toast(text: string, kind?: Toast['kind'], action?: Toast['action']): void
+  dismissToast(id: number): void
 }
 
 const api = window.gameshelf
@@ -92,10 +94,27 @@ export const useLibrary = create<LibraryState>((set, get) => ({
     if (!res.ok) get().toast(res.error ?? 'Could not start install', 'error')
   },
 
-  toast(text, kind = 'info') {
+  async toggleHidden(game) {
+    const hidden = !game.hidden
+    set({ library: await api.updateGame(game.id, { hidden }) })
+    if (hidden) {
+      get().toast(`${game.name} hidden`, 'info', {
+        label: 'Undo',
+        run: () => void get().toggleHidden({ ...game, hidden })
+      })
+    } else {
+      get().toast(`${game.name} is back on your shelf`)
+    }
+  },
+
+  toast(text, kind = 'info', action) {
     const id = ++toastId
-    set({ toasts: [...get().toasts, { id, text, kind }] })
-    setTimeout(() => set({ toasts: get().toasts.filter((t) => t.id !== id) }), 3500)
+    set({ toasts: [...get().toasts, { id, text, kind, action }] })
+    setTimeout(() => get().dismissToast(id), action ? 6000 : 3500)
+  },
+
+  dismissToast(id) {
+    set({ toasts: get().toasts.filter((t) => t.id !== id) })
   }
 }))
 

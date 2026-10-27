@@ -14,6 +14,9 @@ const api: GameShelfApi = {
   searchCovers: (name) => ipcRenderer.invoke('covers:search', name),
   getSettings: () => ipcRenderer.invoke('settings:get'),
   setSettings: (patch) => ipcRenderer.invoke('settings:set', patch),
+  refreshCovers: () => ipcRenderer.invoke('covers:refresh'),
+  openDataFolder: () => ipcRenderer.invoke('app:openData'),
+  getAppInfo: () => ipcRenderer.invoke('app:info'),
   onLibraryChanged: (cb) => {
     const listener = (_e: unknown, lib: LibraryPayload): void => cb(lib)
     ipcRenderer.on('library:changed', listener)
