@@ -91,4 +91,8 @@ scripts/             dev-mock.mjs (run on mock data) and make-fixtures.ts
 
 ### Releasing
 
-Pushing a tag like `v0.2.0` makes the GitHub Actions workflow build the installer on `windows-latest` and attach it to a GitHub Release. Every push to `main` also uploads the installer as a workflow artifact.
+1. On GitHub, open **Releases → Draft a new release**.
+2. Create a new tag such as `v0.3.0` on `main`, add notes, and click **Publish release**.
+3. The workflow builds the installer on `windows-latest` and attaches `GameShelf-Setup-0.3.0.exe` to the release after about 10 minutes. The version comes from the tag. Progress is visible in the **Actions** tab.
+
+Every push to `main` also uploads the installer as a workflow artifact (Actions → the run → _Artifacts_).
