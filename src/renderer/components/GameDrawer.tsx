@@ -27,14 +27,6 @@ export function GameDrawer(): JSX.Element {
     <AnimatePresence>
       {game && (
         <>
-          <motion.div
-            key="scrim"
-            className="scrim"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => select(null)}
-          />
           <motion.aside
             key="drawer"
             className="drawer"

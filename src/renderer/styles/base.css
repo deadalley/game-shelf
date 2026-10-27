@@ -648,12 +648,12 @@ input[type='range'] {
   font-variant-numeric: tabular-nums;
 }
 
-.group-header svg {
+.group-header > svg {
   color: var(--shelf-heading-2, var(--text-3));
   transition: transform 0.25s var(--ease);
 }
 
-.group-header.collapsed svg {
+.group-header.collapsed > svg {
   transform: rotate(-90deg);
 }
 
@@ -726,17 +726,13 @@ input[type='range'] {
   display: inline-grid;
   place-items: center;
   flex: none;
-  border-radius: 50%;
-  background: linear-gradient(180deg, #ffd84a, #f2b705);
-  color: #5a3d00;
-  box-shadow:
-    0 2px 6px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  color: #f5c518;
+  /* Keeps the star readable on light and dark covers alike */
+  filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.55));
 }
 
 .theme-pixel .fav-star {
-  border-radius: 0;
-  box-shadow: 3px 3px 0 #120d22;
+  filter: drop-shadow(2px 2px 0 #120d22);
 }
 
 .card-tilt {
@@ -954,9 +950,19 @@ input[type='range'] {
   z-index: 60;
 }
 
+.stage-inner {
+  transition: padding-right 0.35s var(--ease);
+}
+
+/* Keep games clear of the details panel, which no longer covers the shelf with a backdrop. */
+.stage.drawer-open .stage-inner {
+  padding-right: calc(min(420px, 92vw) + 24px);
+}
+
 .drawer {
   position: fixed;
-  top: 0;
+  /* Starts below the title bar and toolbar, so every control stays reachable while it is open. */
+  top: var(--chrome-h, 104px);
   right: 0;
   bottom: 0;
   width: min(420px, 92vw);
@@ -971,7 +977,7 @@ input[type='range'] {
 
 .drawer-hero {
   position: relative;
-  padding: calc(var(--header-h) + 8px) 28px 24px;
+  padding: 48px 28px 24px;
   display: flex;
   justify-content: center;
   overflow: hidden;
@@ -1835,7 +1841,8 @@ body.no-anim .card-tilt {
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  padding: 6px 0 8px;
+  /* The title starts below the star slot (and below the case band on PS/Xbox spines). */
+  padding: 30px 0 8px;
   border-radius: 3px;
   overflow: hidden;
   background: #1d1d21;
@@ -1860,10 +1867,25 @@ body.no-anim .card-tilt {
   z-index: 1;
 }
 
-.spine-top {
-  min-height: 18px;
+.spine > .spine-top {
+  position: absolute;
+  top: 6px;
+  left: 0;
+  right: 0;
+  height: 18px;
   display: grid;
   place-items: center;
+}
+
+.spine-ps,
+.spine-xbox {
+  padding-top: calc(var(--art-h) * 0.13 + 8px);
+}
+
+/* On case spines the star sits in the middle of the coloured band */
+.spine-ps > .spine-top,
+.spine-xbox > .spine-top {
+  top: calc(var(--art-h) * 0.065 - 9px);
 }
 
 .spine-title {

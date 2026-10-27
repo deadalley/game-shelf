@@ -29,6 +29,18 @@ export function App(): JSX.Element {
     document.documentElement.dataset.theme = colorMode
   }, [colorMode])
 
+  // Height of the title bar plus toolbar; the details panel opens below it.
+  useEffect(() => {
+    const toolbar = document.querySelector('.toolbar')
+    if (!toolbar) return
+    const update = (): void =>
+      document.documentElement.style.setProperty('--chrome-h', `${toolbar.getBoundingClientRect().bottom}px`)
+    const ro = new ResizeObserver(update)
+    ro.observe(toolbar)
+    update()
+    return () => ro.disconnect()
+  }, [])
+
   return (
     <MotionConfig reducedMotion={animations ? 'user' : 'always'}>
       <div className="app">

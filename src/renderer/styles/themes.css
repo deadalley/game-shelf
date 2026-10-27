@@ -3,6 +3,43 @@
  * (the board games stand on, positioned right under the covers) and a few text tokens.
  */
 
+/*
+ * Game names (under covers, on spines, on placeholder covers and in group headers) use a typeface
+ * matched to the shelf; the rest of the interface stays in Inter.
+ */
+.stage {
+  --title-font: var(--font);
+  --title-weight: 600;
+  --title-spacing: 0;
+}
+
+.theme-clean {
+  --title-font: 'Manrope Variable', var(--font);
+  --title-weight: 700;
+  --title-spacing: -0.005em;
+}
+
+.theme-modern {
+  --title-font: 'Space Grotesk Variable', var(--font);
+  --title-weight: 600;
+  --title-spacing: -0.01em;
+}
+
+.theme-old {
+  --title-font: 'Fraunces Variable', Georgia, serif;
+  --title-weight: 600;
+  --title-spacing: 0.005em;
+}
+
+.card-title,
+.spine-title,
+.group-header h2,
+.stage .placeholder {
+  font-family: var(--title-font);
+  font-weight: var(--title-weight);
+  letter-spacing: var(--title-spacing);
+}
+
 .stage {
   --plank-h: 0px;
   --plank-overhang: 32px;
@@ -104,9 +141,7 @@
 }
 
 .theme-old .group-header h2 {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-weight: 700;
-  font-size: 19px;
+  font-size: 20px;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
 }
 

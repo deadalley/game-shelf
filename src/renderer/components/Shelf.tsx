@@ -97,7 +97,7 @@ export function Shelf(): JSX.Element {
   } as React.CSSProperties
 
   return (
-    <main className={`stage theme-${settings.theme}`} style={style}>
+    <main className={`stage theme-${settings.theme}${selectedId ? ' drawer-open' : ''}`} style={style}>
       <div className="stage-inner" ref={innerRef}>
         {ready && visible.length === 0 ? (
           <EmptyState

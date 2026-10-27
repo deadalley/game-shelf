@@ -24,11 +24,12 @@ export function CoverArt({ game, children }: { game: Game; children?: React.Reac
   )
 }
 
-/** Small round yellow star marking games in a favorites collection. */
+/** Yellow star with rounded points marking games in a favorites collection. */
 export function FavoriteStar({ size = 22 }: { size?: number }): JSX.Element {
   return (
-    <span className="fav-star" style={{ width: size, height: size }} title="Favorite" aria-label="Favorite">
-      <Star size={Math.round(size * 0.58)} fill="currentColor" strokeWidth={0} />
+    <span className="fav-star" title="Favorite" aria-label="Favorite">
+      {/* A thick round-joined stroke in the fill colour softens the points. */}
+      <Star size={size} fill="currentColor" stroke="currentColor" strokeWidth={3} strokeLinejoin="round" />
     </span>
   )
 }
