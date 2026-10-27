@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Download, Play } from 'lucide-react'
 import { isFavorite } from '@shared/favorites'
@@ -17,24 +17,52 @@ interface Props {
   game: Game
   wrapper: WrapperId
   cardW: number
-  /** Turned to face the viewer (its details panel is opening or open). */
+  /** Its details panel is opening or open, so it stays turned to face the viewer. */
   open: boolean
+  /** Turn it out first, then open its details panel (keyboard and touch, where there is no hover). */
   onPull(game: Game): void
+  /** Open its details panel straight away (it is already facing the viewer). */
+  onOpen(game: Game): void
   onPlay(game: Game): void
   onContextMenu(game: Game, x: number, y: number): void
 }
 
 const TURN = { type: 'spring', stiffness: 170, damping: 24, mass: 0.9 } as const
 
+/** Pause before a hovered case turns, so sweeping the mouse along the shelf doesn't flip every one. */
+const HOVER_INTENT_MS = 120
+
 /**
- * A game standing on the shelf with only its spine showing. Clicking it slides it out and turns it
- * to face the viewer; the play button in the middle starts the game.
+ * A game standing on the shelf with only its spine showing. Hovering slides it out and turns it to
+ * face the viewer; clicking it opens the details panel; the play button in the middle starts the game.
  */
-function SpineInner({ game, wrapper, cardW, open, onPull, onPlay, onContextMenu }: Props): JSX.Element {
+function SpineInner({
+  game,
+  wrapper,
+  cardW,
+  open: selected,
+  onPull,
+  onOpen,
+  onPlay,
+  onContextMenu
+}: Props): JSX.Element {
   const width = spineWidth(cardW)
   const fav = isFavorite(game.collections)
   const canPlay = game.installed || !game.install
+  const [hovered, setHovered] = useState(false)
+  const timer = useRef<number | undefined>(undefined)
+  const open = hovered || selected
   const iconSize = open ? 22 : 12
+
+  const turnOut = (): void => {
+    window.clearTimeout(timer.current)
+    timer.current = window.setTimeout(() => setHovered(true), HOVER_INTENT_MS)
+  }
+  const turnBack = (): void => {
+    window.clearTimeout(timer.current)
+    setHovered(false)
+  }
+  useEffect(() => () => window.clearTimeout(timer.current), [])
 
   const play = (
     <button
@@ -60,7 +88,12 @@ function SpineInner({ game, wrapper, cardW, open, onPull, onPlay, onContextMenu 
       initial={false}
       animate={{ width: open ? cardW : width }}
       transition={TURN}
-      onClick={() => onPull(game)}
+      aria-expanded={selected}
+      onMouseEnter={turnOut}
+      onMouseLeave={turnBack}
+      onFocus={turnOut}
+      onBlur={turnBack}
+      onClick={() => (open ? onOpen(game) : onPull(game))}
       onDoubleClick={() => onPlay(game)}
       onKeyDown={(e) => {
         if (e.key === 'Enter') onPlay(game)

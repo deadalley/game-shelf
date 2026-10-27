@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { isFavorite, isFavoritesCollection } from '@shared/favorites'
 import { DEFAULT_SETTINGS, type Game } from '@shared/types'
-import { groupGames, sortGames } from '../src/renderer/lib/organize'
+import { coverSizePercent, groupGames, sortGames } from '../src/renderer/lib/organize'
 
 describe('favorites collections', () => {
   it.each([
@@ -70,5 +70,14 @@ describe('organizing', () => {
   it('sorts by playtime and last played, games without data last', () => {
     expect(sortGames(games, 'playtime').map((g) => g.id)).toEqual(['b', 'c', 'a', 'd'])
     expect(sortGames(games, 'lastPlayed').map((g) => g.id)).toEqual(['a', 'b', 'c', 'd'])
+  })
+})
+
+describe('cover size', () => {
+  it('shows pixels as a percentage of the default size', () => {
+    expect(coverSizePercent(150)).toBe(100)
+    expect(coverSizePercent(100)).toBe(67)
+    expect(coverSizePercent(200)).toBe(133)
+    expect(coverSizePercent(240)).toBe(160)
   })
 })

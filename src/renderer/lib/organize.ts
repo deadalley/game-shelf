@@ -1,5 +1,5 @@
 import { isFavoritesCollection } from '@shared/favorites'
-import { SERVICES, SERVICE_LABELS, type Game, type Settings, type SortId } from '@shared/types'
+import { DEFAULT_SETTINGS, SERVICES, SERVICE_LABELS, type Game, type Settings, type SortId } from '@shared/types'
 
 export interface ShelfGroup {
   key: string
@@ -71,6 +71,11 @@ export function chunk<T>(items: T[], size: number): T[][] {
   const out: T[][] = []
   for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size))
   return out
+}
+
+/** Cover size is stored in pixels but shown as a percentage of the default size. */
+export function coverSizePercent(px: number): number {
+  return Math.round((px / DEFAULT_SETTINGS.coverSize) * 100)
 }
 
 export function formatPlaytime(minutes: number | undefined): string | undefined {

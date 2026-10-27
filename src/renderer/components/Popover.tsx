@@ -19,14 +19,17 @@ export function Popover({
     const onDown = (e: MouseEvent): void => {
       if (!ref.current?.contains(e.target as Node)) setOpen(false)
     }
+    // Capture phase: Esc closes just this menu, not the details panel or settings underneath.
     const onKey = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') setOpen(false)
+      if (e.key !== 'Escape') return
+      e.stopImmediatePropagation()
+      setOpen(false)
     }
     window.addEventListener('mousedown', onDown)
-    window.addEventListener('keydown', onKey)
+    window.addEventListener('keydown', onKey, true)
     return () => {
       window.removeEventListener('mousedown', onDown)
-      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('keydown', onKey, true)
     }
   }, [open])
 

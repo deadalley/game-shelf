@@ -325,7 +325,8 @@ a {
   border-bottom: 1px solid var(--border);
   background: var(--bg);
   position: relative;
-  z-index: 5;
+  /* Above the details panel (61) so toolbar menus open over it */
+  z-index: 65;
 }
 
 .chips {
@@ -664,8 +665,7 @@ input[type='range'] {
   gap: var(--gap);
   padding: 0 var(--row-pad, 0px);
   margin-bottom: var(--row-space, 26px);
-  content-visibility: auto;
-  contain-intrinsic-size: auto 300px;
+  /* No content-visibility/paint containment here: it clips covers that lift above the row on hover. */
 }
 
 .plank {
@@ -1494,7 +1494,8 @@ button.switch {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 40;
+  /* Covers the toolbar (65) and the details panel (61) */
+  z-index: 66;
   display: grid;
   grid-template-columns: 240px 1fr;
   background: var(--bg);
@@ -1777,7 +1778,7 @@ body.no-anim .card-tilt {
 
 .shelf-row.stacked {
   gap: 3px;
-  /* Rows clip their painting (content-visibility), so make room for the plank and glow below the spines. */
+  /* Spines have no title underneath, so leave room for the plank below them. */
   padding-bottom: calc(var(--plank-h) + 16px);
 }
 

@@ -1,4 +1,5 @@
-import type { ColorMode } from '@shared/types'
+import { DEFAULT_SETTINGS, type ColorMode } from '@shared/types'
+import { coverSizePercent } from '../../lib/organize'
 import { useLibrary } from '../../state/useLibrary'
 import { LAYOUTS, Segmented, ThemePicker, WrapperPicker } from '../LayoutPicker'
 import { SettingRow, Switch } from './SettingsPage'
@@ -51,7 +52,10 @@ export function AppearanceSection(): JSX.Element {
         >
           <Switch on={s.showPlaytime} onChange={(showPlaytime) => update({ showPlaytime })} label="Show hours played" />
         </SettingRow>
-        <SettingRow title="Cover size" description={`${s.coverSize}px wide`}>
+        <SettingRow
+          title="Cover size"
+          description={`${coverSizePercent(s.coverSize)}%${s.coverSize === DEFAULT_SETTINGS.coverSize ? ' (default)' : ''}`}
+        >
           <input
             type="range"
             min={100}

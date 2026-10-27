@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowDownUp, ChevronDown, GalleryVertical, LayoutGrid, Layers, Palette, SlidersHorizontal } from 'lucide-react'
 import { SERVICES, SERVICE_LABELS, type InstallFilter, type Service } from '@shared/types'
+import { coverSizePercent } from '../lib/organize'
 import { SERVICE_COLORS } from '../lib/services'
 import { useLibrary } from '../state/useLibrary'
 import { GROUPS, SORTS, Segmented, ThemePicker, WrapperPicker } from './LayoutPicker'
@@ -167,7 +168,7 @@ export function Toolbar(): JSX.Element {
         <div className="range-row">
           <label>
             <span>Cover size</span>
-            <span>{settings.coverSize}px</span>
+            <span>{coverSizePercent(settings.coverSize)}%</span>
           </label>
           <input
             type="range"

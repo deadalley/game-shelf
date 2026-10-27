@@ -42,18 +42,21 @@ export function ContextMenu({ target, onClose }: { target: MenuTarget; onClose()
       if (e instanceof MouseEvent && ref.current?.contains(e.target as Node)) return
       onClose()
     }
+    // Capture phase: Esc closes just this menu, not the details panel underneath.
     const onKey = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') onClose()
+      if (e.key !== 'Escape') return
+      e.stopImmediatePropagation()
+      onClose()
     }
     window.addEventListener('mousedown', close)
     window.addEventListener('wheel', close, { passive: true })
     window.addEventListener('blur', close)
-    window.addEventListener('keydown', onKey)
+    window.addEventListener('keydown', onKey, true)
     return () => {
       window.removeEventListener('mousedown', close)
       window.removeEventListener('wheel', close)
       window.removeEventListener('blur', close)
-      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('keydown', onKey, true)
     }
   }, [onClose])
 

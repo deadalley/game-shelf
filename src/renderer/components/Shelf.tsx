@@ -48,9 +48,9 @@ export function Shelf(): JSX.Element {
   const minGap = Math.round(Math.max(14, cardW * 0.14))
   const spineW = spineWidth(cardW)
   const SPINE_GAP = 3
-  // Stacked rows leave room for one case turned to face the viewer.
+  // Stacked rows leave room for two cases turned to face the viewer: the selected one and a hovered one.
   const perRow = stacked
-    ? Math.max(1, Math.floor((width - (cardW - spineW) + SPINE_GAP) / (spineW + SPINE_GAP)))
+    ? Math.max(1, Math.floor((width - 2 * (cardW - spineW) + SPINE_GAP) / (spineW + SPINE_GAP)))
     : Math.max(1, Math.floor((width + minGap) / (cardW + minGap)))
   const gap = stacked
     ? SPINE_GAP
@@ -155,6 +155,7 @@ export function Shelf(): JSX.Element {
                                       cardW={cardW}
                                       open={pulledId === game.id || selectedId === game.id}
                                       onPull={onPull}
+                                      onOpen={onOpen}
                                       onPlay={onPlay}
                                       onContextMenu={onContextMenu}
                                     />

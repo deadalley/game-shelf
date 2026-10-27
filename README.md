@@ -20,7 +20,7 @@ GameShelf is a Windows app that finds the games you have in **Steam, Xbox (Micro
 - **Sort.** By name, last played or most played.
 - **Hide games.** Hover a cover and click the eye icon, or right-click it, to take a game off the shelf (with Undo). Bring hidden games back from **Settings → Hidden games**.
 - **Display.** Toggle titles and hours played, resize covers, and show or hide games you've hidden.
-- **Layouts.** _Flat_ shows every cover; _Stacked_ lines games up spine by spine like cases on a real shelf. Click a spine and it slides out and turns to face you. Four shelves: _Clean_, _Old shelf_, _Modern shelf_ and _Pixel shelf_. Three cover styles: plain, PS-style case or Xbox-style case.
+- **Layouts.** _Flat_ shows every cover; _Stacked_ lines games up spine by spine like cases on a real shelf. Hover a spine and it slides out and turns to face you; click it to open its details. Four shelves: _Clean_, _Old shelf_, _Modern shelf_ and _Pixel shelf_. Three cover styles: plain, PS-style case or Xbox-style case.
 - **Play.** Click a cover's play button or double-click it to launch through the game's launcher. Games that aren't installed open the launcher's install page instead.
 - **Edit anything.** Change the name, cover, launch command and collections of any game. Your edits survive rescans, and _Reset to launcher data_ undoes them.
 - **Your own games.** Add any `.exe` with a name and cover. GameShelf tracks how long you play them.
