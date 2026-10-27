@@ -1,9 +1,11 @@
+import { isFavoritesCollection } from '@shared/favorites'
 import { SERVICES, SERVICE_LABELS, type Game, type Settings, type SortId } from '@shared/types'
 
 export interface ShelfGroup {
   key: string
   title: string
   games: Game[]
+  favorite?: boolean
 }
 
 export function filterGames(games: Game[], s: Settings, search: string): Game[] {
@@ -21,7 +23,7 @@ const byName = (a: Game, b: Game): number =>
   a.name.localeCompare(b.name, undefined, { sensitivity: 'base', numeric: true })
 
 /** Descending by a numeric field; games without data go last, ties fall back to name. */
-function desc(field: 'lastPlayed' | 'playtimeMinutes' | 'installedAt') {
+function desc(field: 'lastPlayed' | 'playtimeMinutes') {
   return (a: Game, b: Game): number => {
     const x = a[field] ?? -1
     const y = b[field] ?? -1
@@ -32,8 +34,7 @@ function desc(field: 'lastPlayed' | 'playtimeMinutes' | 'installedAt') {
 const SORTERS: Record<SortId, (a: Game, b: Game) => number> = {
   name: byName,
   lastPlayed: desc('lastPlayed'),
-  playtime: desc('playtimeMinutes'),
-  installedAt: desc('installedAt')
+  playtime: desc('playtimeMinutes')
 }
 
 export function sortGames(games: Game[], sort: SortId): Game[] {
@@ -57,9 +58,11 @@ export function groupGames(games: Game[], s: Settings): ShelfGroup[] {
       const cols = g.collections.length ? g.collections : [UNCATEGORIZED]
       for (const c of cols) map.set(c, [...(map.get(c) ?? []), g])
     }
+    // Favorites first, Uncategorized last, everything else alphabetical.
+    const rank = (c: string): number => (isFavoritesCollection(c) ? 0 : c === UNCATEGORIZED ? 2 : 1)
     return [...map.entries()]
-      .sort(([a], [b]) => (a === UNCATEGORIZED ? 1 : b === UNCATEGORIZED ? -1 : a.localeCompare(b)))
-      .map(([title, games]) => ({ key: `c:${title}`, title, games }))
+      .sort(([a], [b]) => rank(a) - rank(b) || a.localeCompare(b))
+      .map(([title, games]) => ({ key: `c:${title}`, title, games, favorite: isFavoritesCollection(title) }))
   }
   return [{ key: 'all', title: 'All games', games: sorted }]
 }

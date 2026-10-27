@@ -125,6 +125,8 @@ textarea {
 .app {
   display: grid;
   grid-template-rows: var(--header-h) auto 1fr;
+  /* One column no wider than the window: a long toolbar scrolls its chips instead of widening the page. */
+  grid-template-columns: minmax(0, 1fr);
   height: 100%;
 }
 
@@ -419,6 +421,10 @@ a {
   color: var(--text);
 }
 
+.segmented.icon-toggle button {
+  padding: 0 8px;
+}
+
 .segmented .seg-bg {
   position: absolute;
   inset: 0;
@@ -676,8 +682,61 @@ input[type='range'] {
   width: var(--card-w);
   flex: none;
   cursor: pointer;
-  perspective: 900px;
   z-index: 1;
+  --glow: color-mix(in srgb, var(--text) 35%, transparent);
+}
+
+/* The whole cover (art or case) lifts as one piece; title and hours below stay put. */
+.card:hover .card-tilt,
+.card:focus-visible .card-tilt {
+  transform: translateY(-8px);
+}
+
+/* Soft light pooling on the shelf under a hovered cover, tinted by the shelf theme. */
+.card-glow {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  top: calc(var(--art-h) - 16px);
+  height: 30px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, var(--glow) 0%, transparent 70%);
+  filter: blur(6px);
+  opacity: 0;
+  transform: scaleX(0.7);
+  transition:
+    opacity 0.35s var(--ease),
+    transform 0.35s var(--ease);
+  pointer-events: none;
+}
+
+.card:hover .card-glow,
+.card:focus-visible .card-glow {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.badge-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.fav-star {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffd84a, #f2b705);
+  color: #5a3d00;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.theme-pixel .fav-star {
+  border-radius: 0;
+  box-shadow: 3px 3px 0 #120d22;
 }
 
 .card-tilt {
@@ -1072,7 +1131,9 @@ input[type='range'] {
 }
 
 .dialog-layer .scrim {
+  /* Must stay below the dialog, or every click lands on the backdrop and closes it. */
   position: absolute;
+  z-index: 0;
 }
 
 .dialog {
@@ -1704,4 +1765,231 @@ body.no-anim *::after {
 
 body.no-anim .card-tilt {
   transform: none !important;
+}
+
+/* ---------- Stacked layout: cases seen from the side ---------- */
+
+.shelf-row.stacked {
+  gap: 3px;
+  /* Rows clip their painting (content-visibility), so make room for the plank and glow below the spines. */
+  padding-bottom: calc(var(--plank-h) + 16px);
+}
+
+.spine-item {
+  position: relative;
+  flex: none;
+  height: var(--art-h);
+  cursor: pointer;
+  z-index: 1;
+  outline: none;
+  --glow: color-mix(in srgb, var(--text) 35%, transparent);
+}
+
+.spine-item.open {
+  z-index: 3;
+}
+
+.spine-lift {
+  position: relative;
+  height: 100%;
+  perspective: 1100px;
+  transition: transform 0.3s var(--ease);
+}
+
+.spine-item:not(.open):hover .spine-lift,
+.spine-item:not(.open):focus-visible .spine-lift {
+  transform: translateY(-10px);
+}
+
+.spine-glow {
+  position: absolute;
+  left: -30%;
+  right: -30%;
+  top: calc(var(--art-h) - 14px);
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, var(--glow) 0%, transparent 70%);
+  filter: blur(5px);
+  opacity: 0;
+  transition: opacity 0.3s var(--ease);
+  pointer-events: none;
+}
+
+.spine-item:hover .spine-glow,
+.spine-item:focus-visible .spine-glow,
+.spine-item.open .spine-glow {
+  opacity: 1;
+}
+
+.spine,
+.spine-front {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  backface-visibility: hidden;
+}
+
+.spine {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0 8px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #1d1d21;
+  color: #f4f2ee;
+  box-shadow:
+    inset 1px 0 0 rgba(255, 255, 255, 0.18),
+    inset -2px 0 3px rgba(0, 0, 0, 0.45),
+    2px 3px 6px rgba(0, 0, 0, 0.35);
+}
+
+/* The cover art, blurred and darkened, printed on the spine */
+.spine-art {
+  position: absolute;
+  inset: -10px;
+  background-size: cover;
+  background-position: center;
+  filter: blur(7px) saturate(1.4) brightness(0.55);
+}
+
+.spine > :not(.spine-art) {
+  position: relative;
+  z-index: 1;
+}
+
+.spine-top {
+  min-height: 18px;
+  display: grid;
+  place-items: center;
+}
+
+.spine-title {
+  flex: 1;
+  min-height: 0;
+  writing-mode: vertical-rl;
+  font-weight: 650;
+  font-size: clamp(9px, calc(var(--card-w) * 0.075), 13px);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.spine-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.6);
+}
+
+.spine-play {
+  position: absolute !important;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  z-index: 2 !important;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.95);
+  color: #161616;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  scale: 0.8;
+  transition:
+    opacity 0.2s,
+    scale 0.2s var(--ease);
+}
+
+.spine-item:hover .spine-play,
+.spine-item:focus-visible .spine-play {
+  opacity: 1;
+  scale: 1;
+}
+
+.spine-play:hover {
+  scale: 1.12 !important;
+}
+
+.spine-front .spine-play {
+  width: 52px;
+  height: 52px;
+  opacity: 1;
+  scale: 1;
+}
+
+.spine-front-overlay {
+  opacity: 1 !important;
+  background: none;
+}
+
+/* PS-style spine: blue plastic with a dark band at the top */
+.spine-ps {
+  background: linear-gradient(90deg, #1d4fbf, #2f6fe0 50%, #1d4fbf);
+}
+
+.spine-xbox {
+  background: linear-gradient(90deg, #0d6e0d, #1a901a 50%, #0d6e0d);
+}
+
+.spine-ps .spine-art,
+.spine-xbox .spine-art {
+  inset: 13% 3px 3px;
+  opacity: 0.9;
+}
+
+.spine-ps::before,
+.spine-xbox::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 13%;
+  z-index: 0;
+}
+
+.spine-ps::before {
+  background: linear-gradient(180deg, #3c8ddd, #0b3a96);
+}
+
+.spine-xbox::before {
+  background: linear-gradient(180deg, #1c9a1c, #107c10);
+}
+
+.spine-item.uninstalled .spine-art {
+  filter: blur(7px) grayscale(0.9) brightness(0.5);
+}
+
+.spine-item.uninstalled .spine-front img {
+  filter: grayscale(0.85) brightness(0.8);
+}
+
+.spine-item.is-hidden {
+  opacity: 0.55;
+}
+
+.theme-pixel .spine {
+  border-radius: 0;
+  outline: 3px solid #120d22;
+}
+
+.theme-pixel .spine-title {
+  font-family: var(--pixel-font);
+  font-weight: 400;
+  font-size: 8px;
+}
+
+.theme-pixel .spine-play {
+  border-radius: 0;
 }

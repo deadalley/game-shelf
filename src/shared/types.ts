@@ -76,8 +76,9 @@ export interface Game {
 
 export type ThemeId = 'clean' | 'old' | 'modern' | 'pixel'
 export type WrapperId = 'none' | 'ps' | 'xbox'
-export type SortId = 'name' | 'lastPlayed' | 'playtime' | 'installedAt'
+export type SortId = 'name' | 'lastPlayed' | 'playtime'
 export type GroupId = 'none' | 'service' | 'collection'
+export type LayoutId = 'flat' | 'stacked'
 export type InstallFilter = 'all' | 'installed' | 'uninstalled'
 export type ColorMode = 'system' | 'light' | 'dark'
 
@@ -97,6 +98,7 @@ export interface Settings {
   showHidden: boolean
   coverSize: number // px width of a cover
   disabledServices: Service[] // launchers that are neither scanned nor shown
+  layout: LayoutId // covers facing out, or spines side by side
   colorMode: ColorMode
   animations: boolean
 }
@@ -114,6 +116,7 @@ export const DEFAULT_SETTINGS: Settings = {
   showHidden: false,
   coverSize: 150,
   disabledServices: [],
+  layout: 'flat',
   colorMode: 'system',
   animations: true
 }

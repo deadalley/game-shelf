@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Star } from 'lucide-react'
 import { SERVICE_LABELS, type Game, type WrapperId } from '@shared/types'
 import { placeholderTone } from '../lib/services'
 
@@ -23,6 +24,26 @@ export function CoverArt({ game, children }: { game: Game; children?: React.Reac
   )
 }
 
+/** Small round yellow star marking games in a favorites collection. */
+export function FavoriteStar({ size = 22 }: { size?: number }): JSX.Element {
+  return (
+    <span className="fav-star" style={{ width: size, height: size }} title="Favorite" aria-label="Favorite">
+      <Star size={Math.round(size * 0.58)} fill="currentColor" strokeWidth={0} />
+    </span>
+  )
+}
+
+/**
+ * Case proportions, as fractions of the cover width, measured from PS4 and Xbox retail case templates.
+ * Shared by the CSS (through custom properties) and `coverHeight`, so the shelf lines up exactly.
+ */
+const CASES = {
+  ps: { edge: 0.016, band: 0.165, bottom: 0.018 },
+  xbox: { edge: 0.016, band: 0.12, bottom: 0.036 }
+} as const
+
+const px = (fraction: number): string => `max(2px, calc(var(--card-w) * ${fraction}))`
+
 /** Cover art, optionally inside a PS- or Xbox-style case. */
 export function WrappedCover({
   game,
@@ -34,14 +55,23 @@ export function WrappedCover({
   children?: React.ReactNode
 }): JSX.Element {
   if (wrapper === 'none') return <CoverArt game={game}>{children}</CoverArt>
+  const g = CASES[wrapper]
+  const style = { '--edge': px(g.edge), '--band': px(g.band), '--bottom': px(g.bottom) } as React.CSSProperties
+  const label = SERVICE_LABELS[game.service]
   return (
-    <div className={`case ${wrapper}`}>
+    <div className={`case ${wrapper}`} style={style}>
       <div className="case-band">
         <span className="mark" />
-        <span>{SERVICE_LABELS[game.service]}</span>
-        {wrapper === 'ps' && <span className="tail">PC</span>}
+        <span className="case-label">{label}</span>
       </div>
-      <CoverArt game={game}>{children}</CoverArt>
+      <CoverArt game={game}>
+        {wrapper === 'xbox' && (
+          <div className="case-strip">
+            <span>PC · {label}</span>
+          </div>
+        )}
+        {children}
+      </CoverArt>
     </div>
   )
 }
@@ -49,7 +79,7 @@ export function WrappedCover({
 /** Height of the visible cover (art or case) for a given card width. */
 export function coverHeight(width: number, wrapper: WrapperId): number {
   if (wrapper === 'none') return width * 1.5
-  const edge = Math.max(3, width * 0.03)
-  const band = width * 0.12
-  return band + (width - 2 * edge) * 1.5 + edge
+  const g = CASES[wrapper]
+  const size = (f: number): number => Math.max(2, width * f)
+  return size(g.band) + (width - 2 * size(g.edge)) * 1.5 + size(g.bottom)
 }

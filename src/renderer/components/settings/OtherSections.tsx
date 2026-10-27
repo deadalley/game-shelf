@@ -11,7 +11,10 @@ export function ViewSection(): JSX.Element {
   const update = useLibrary((st) => st.updateSettings)
   return (
     <div className="settings-card">
-      <SettingRow title="Organize" description="One shelf, or one per launcher or collection.">
+      <SettingRow
+        title="Group by"
+        description="When grouping by collection, a Favorites collection always comes first."
+      >
         <Segmented id="set-group" options={GROUPS} value={s.group} onChange={(group) => update({ group })} />
       </SettingRow>
       <SettingRow title="Sort by">

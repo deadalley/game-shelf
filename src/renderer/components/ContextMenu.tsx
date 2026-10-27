@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Download, Eye, EyeOff, Info, Pencil, Play } from 'lucide-react'
+import { Download, Eye, EyeOff, Info, Pencil, Play, Star, StarOff } from 'lucide-react'
+import { isFavoritesCollection } from '@shared/favorites'
 import type { Game } from '@shared/types'
 import { useLibrary } from '../state/useLibrary'
 
@@ -14,9 +15,17 @@ export interface MenuTarget {
 export function ContextMenu({ target, onClose }: { target: MenuTarget; onClose(): void }): JSX.Element {
   const ref = useRef<HTMLDivElement>(null)
   const [pos, setPos] = useState({ left: target.x, top: target.y })
-  const { launch, select, edit, toggleHidden } = useLibrary.getState()
+  const { launch, select, edit, toggleHidden, setLibrary } = useLibrary.getState()
   const { game } = target
   const canPlay = game.installed || !game.install
+  const fav = game.collections.some(isFavoritesCollection)
+
+  /** Uses the user's existing favorites collection (whatever its name/language), or creates "Favorites". */
+  const setFavorite = async (on: boolean): Promise<void> => {
+    const existing = useLibrary.getState().library.collections.find(isFavoritesCollection) ?? 'Favorites'
+    const collections = on ? [...game.collections, existing] : game.collections.filter((c) => !isFavoritesCollection(c))
+    setLibrary(await window.gameshelf.updateGame(game.id, { collections }))
+  }
 
   useLayoutEffect(() => {
     const el = ref.current
@@ -78,6 +87,9 @@ export function ContextMenu({ target, onClose }: { target: MenuTarget; onClose()
       {item(<Info size={15} />, 'Details', () => select(game.id))}
       {item(<Pencil size={15} />, 'Edit…', () => edit(game.id))}
       <div className="menu-sep" />
+      {fav
+        ? item(<StarOff size={15} />, 'Remove from favorites', () => void setFavorite(false))
+        : item(<Star size={15} />, 'Add to favorites', () => void setFavorite(true))}
       {game.hidden
         ? item(<Eye size={15} />, 'Show in library', () => void toggleHidden(game))
         : item(<EyeOff size={15} />, 'Hide from library', () => void toggleHidden(game))}

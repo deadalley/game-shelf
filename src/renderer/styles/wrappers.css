@@ -1,16 +1,14 @@
 /*
- * Game case wrappers, loosely modelled on PS4 and Xbox One retail cases:
- * a coloured plastic shell, a header band across the top, and the cover art under clear plastic.
- * Only colours and proportions are borrowed; no official logos are used.
+ * Game case wrappers modelled on PS4 and Xbox retail cases: a coloured plastic shell with thin
+ * edges, a header band across the top, and the cover art under clear plastic. Proportions come
+ * from the case templates (see CASES in Cover.tsx); the band shows the game's launcher instead of
+ * the console logos.
  */
 
 .case {
-  --edge: max(3px, calc(var(--card-w) * 0.03));
-  --band: calc(var(--card-w) * 0.12);
   position: relative;
-  padding: var(--edge);
-  padding-top: 0;
-  border-radius: max(4px, calc(var(--card-w) * 0.035));
+  padding: 0 var(--edge) var(--bottom);
+  border-radius: max(3px, calc(var(--card-w) * 0.02));
   box-shadow: var(--cover-shadow, var(--shadow-md));
   transition: box-shadow 0.3s var(--ease);
   overflow: hidden;
@@ -21,123 +19,142 @@
 }
 
 .case .card-art {
-  border-radius: 1px;
+  border-radius: 0;
   box-shadow: none;
 }
 
 .case-band {
+  position: relative;
   height: var(--band);
+  margin: 0 calc(-1 * var(--edge));
   display: flex;
   align-items: center;
-  gap: calc(var(--card-w) * 0.035);
-  padding: 0 calc(var(--card-w) * 0.04);
+  gap: calc(var(--card-w) * 0.04);
+  padding: 0 calc(var(--edge) + var(--card-w) * 0.05);
   color: #fff;
-  font-weight: 800;
-  font-size: calc(var(--card-w) * 0.068);
-  letter-spacing: 0.02em;
   white-space: nowrap;
   overflow: hidden;
 }
 
-/* The clear plastic sleeve: a soft diagonal sheen and a bright rim. */
+.case-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Clear plastic sleeve: a soft diagonal sheen and a bright rim. */
 .case::after {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
+  z-index: 2;
   background: linear-gradient(
     115deg,
-    rgba(255, 255, 255, 0.22) 0%,
-    rgba(255, 255, 255, 0.05) 28%,
-    transparent 45%,
-    transparent 75%,
-    rgba(255, 255, 255, 0.08)
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.04) 26%,
+    transparent 42%,
+    transparent 78%,
+    rgba(255, 255, 255, 0.06)
   );
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    inset 0 0 0 1px rgba(255, 255, 255, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
-/* Hinge ridge on the left edge */
-.case::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: calc(var(--edge) * 0.8);
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0.25), rgba(255, 255, 255, 0.12));
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* ---------- PS-style ---------- */
+/* ---------- PS4-style: blue shell, blue gradient band with the label at the left ---------- */
 
 .case.ps {
-  background: linear-gradient(180deg, #2a62c4, #1a4593);
+  background: linear-gradient(90deg, #1f55c9, #2f6fe0 8%, #2a64d6 92%, #1d4fbf);
 }
 
 .case.ps .case-band {
-  background: linear-gradient(180deg, #0b2f78, #062463);
-  margin: 0 calc(-1 * var(--edge));
-  padding-left: calc(var(--edge) + var(--card-w) * 0.05);
-  font-style: italic;
-  font-family: 'Arial Black', var(--font);
-  letter-spacing: 0.03em;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 45%),
+    linear-gradient(90deg, #0b3a96 0%, #1351b4 45%, #3c8ddd 100%);
+  font-family: 'Segoe UI Light', 'Segoe UI', var(--font);
+  font-weight: 300;
+  font-size: calc(var(--card-w) * 0.085);
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
+/* A small rounded tile standing in for the console mark */
 .case.ps .case-band .mark {
-  display: inline-block;
-  height: 55%;
-  aspect-ratio: 1;
-  background:
-    linear-gradient(135deg, transparent 45%, rgba(255, 255, 255, 0.95) 45% 55%, transparent 55%),
-    linear-gradient(45deg, transparent 45%, rgba(255, 255, 255, 0.55) 45% 55%, transparent 55%);
-  border-radius: 2px;
+  flex: none;
+  width: calc(var(--card-w) * 0.075);
+  height: calc(var(--card-w) * 0.075);
+  border-radius: 28%;
+  border: max(1px, calc(var(--card-w) * 0.01)) solid rgba(255, 255, 255, 0.9);
 }
 
-.case.ps .case-band .tail {
-  margin-left: auto;
-  font-size: 0.65em;
-  opacity: 0.7;
-  font-style: normal;
-  font-weight: 700;
-}
-
-/* ---------- Xbox-style ---------- */
+/* ---------- Xbox-style: green shell and band, black slanted strip over the art ---------- */
 
 .case.xbox {
-  background: linear-gradient(180deg, #2b9a2b, #127a12);
+  background: linear-gradient(180deg, #188a18, #0f7a0f);
 }
 
 .case.xbox .case-band {
-  background: linear-gradient(180deg, #1a8f1a, #0f6e0f);
-  margin: 0 calc(-1 * var(--edge));
-  padding-left: calc(var(--edge) + var(--card-w) * 0.05);
+  justify-content: center;
+  background: linear-gradient(180deg, #1c9a1c, #107c10 70%);
   font-family: 'Segoe UI', var(--font);
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  font-size: calc(var(--card-w) * 0.075);
+  letter-spacing: 0.02em;
   text-transform: uppercase;
 }
 
 .case.xbox .case-band .mark {
-  display: inline-block;
-  height: 62%;
-  aspect-ratio: 1;
+  flex: none;
+  width: calc(var(--card-w) * 0.075);
+  height: calc(var(--card-w) * 0.075);
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #fff 0 18%, #d9f2d9 30%, #9bd09b 60%, #5aa05a 100%);
-  box-shadow: inset -1px -1px 2px rgba(0, 0, 0, 0.25);
+  background: radial-gradient(circle at 35% 30%, #fff 0 30%, #e7f5e7 55%, #c9e6c9 100%);
 }
 
-.case.xbox .case-band .tail {
-  margin-left: auto;
-  font-size: 0.6em;
-  opacity: 0.75;
+.case-strip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 70%;
+  height: calc(var(--card-w) * 0.09);
+  display: flex;
+  align-items: center;
+  padding-left: calc(var(--card-w) * 0.04);
+  background: #161616;
+  color: #fff;
+  font-family: 'Segoe UI', var(--font);
+  font-weight: 700;
+  font-size: max(8px, calc(var(--card-w) * 0.055));
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--card-w) * 0.06) 100%, 0 100%);
+  z-index: 1;
+  pointer-events: none;
 }
 
-/* Pixel theme: chunkier, square cases */
+/* Thin green line along the slanted end of the strip */
+.case-strip::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, transparent calc(100% - var(--card-w) * 0.07), #107c10 0);
+  clip-path: polygon(
+    calc(100% - 2px) 0,
+    100% 0,
+    calc(100% - var(--card-w) * 0.06) 100%,
+    calc(100% - var(--card-w) * 0.06 - 2px) 100%
+  );
+}
+
+.case.xbox .card-badges {
+  top: calc(var(--card-w) * 0.09 + 6px);
+}
+
+/* ---------- Pixel theme: chunkier, square cases ---------- */
+
 .theme-pixel .case {
   border-radius: 0;
   outline: 4px solid #120d22;
@@ -152,11 +169,19 @@
   outline: none;
 }
 
-.theme-pixel .case-band {
+.theme-pixel .case-band,
+.theme-pixel .case-strip {
   font-family: var(--pixel-font);
-  font-style: normal;
   font-weight: 400;
+  letter-spacing: 0;
+}
+
+.theme-pixel .case-band {
   font-size: calc(var(--card-w) * 0.05);
+}
+
+.theme-pixel .case-strip {
+  font-size: calc(var(--card-w) * 0.032);
 }
 
 .theme-pixel .case .mark {

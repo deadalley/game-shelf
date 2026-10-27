@@ -1,17 +1,21 @@
 import { motion } from 'framer-motion'
-import type { GroupId, SortId, ThemeId, WrapperId } from '@shared/types'
+import type { GroupId, LayoutId, SortId, ThemeId, WrapperId } from '@shared/types'
 
 export const SORTS: { id: SortId; label: string }[] = [
   { id: 'name', label: 'Name' },
   { id: 'lastPlayed', label: 'Last played' },
-  { id: 'playtime', label: 'Most played' },
-  { id: 'installedAt', label: 'Recently installed' }
+  { id: 'playtime', label: 'Most played' }
 ]
 
 export const GROUPS: { id: GroupId; label: string }[] = [
-  { id: 'none', label: 'One shelf' },
-  { id: 'service', label: 'By service' },
-  { id: 'collection', label: 'By collection' }
+  { id: 'none', label: 'No grouping' },
+  { id: 'service', label: 'Service' },
+  { id: 'collection', label: 'Collection' }
+]
+
+export const LAYOUTS: { id: LayoutId; label: string }[] = [
+  { id: 'flat', label: 'Flat' },
+  { id: 'stacked', label: 'Stacked' }
 ]
 
 const THEMES: { id: ThemeId; label: string }[] = [

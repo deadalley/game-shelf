@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
-import { ArrowDownUp, ChevronDown, LayoutGrid, Layers, SlidersHorizontal } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { ArrowDownUp, ChevronDown, GalleryVertical, LayoutGrid, Layers, Palette, SlidersHorizontal } from 'lucide-react'
 import { SERVICES, SERVICE_LABELS, type InstallFilter, type Service } from '@shared/types'
 import { SERVICE_COLORS } from '../lib/services'
 import { useLibrary } from '../state/useLibrary'
@@ -63,14 +64,15 @@ export function Toolbar(): JSX.Element {
       <Popover
         trigger={(open, toggle) => (
           <button className="btn" onClick={toggle} aria-expanded={open}>
-            <Layers size={15} /> {GROUPS.find((g) => g.id === settings.group)?.label}
+            <Layers size={15} />{' '}
+            {settings.group === 'none' ? 'No grouping' : `Group: ${GROUPS.find((g) => g.id === settings.group)?.label}`}
             <ChevronDown size={14} />
           </button>
         )}
       >
         {(close) => (
           <>
-            <h4>Organize</h4>
+            <h4>Group by</h4>
             {GROUPS.map((g) => (
               <MenuItem
                 key={g.id}
@@ -114,6 +116,33 @@ export function Toolbar(): JSX.Element {
         )}
       </Popover>
 
+      <div className="segmented icon-toggle" role="radiogroup" aria-label="Layout">
+        {(
+          [
+            { id: 'flat', label: 'Flat: covers facing out', Icon: LayoutGrid },
+            { id: 'stacked', label: 'Stacked: spines side by side', Icon: GalleryVertical }
+          ] as const
+        ).map(({ id, label, Icon }) => (
+          <button
+            key={id}
+            role="radio"
+            aria-checked={settings.layout === id}
+            title={label}
+            className={settings.layout === id ? 'active' : ''}
+            onClick={() => update({ layout: id })}
+          >
+            {settings.layout === id && (
+              <motion.span
+                layoutId="seg-layout"
+                className="seg-bg"
+                transition={{ type: 'spring', stiffness: 500, damping: 38 }}
+              />
+            )}
+            <Icon size={15} />
+          </button>
+        ))}
+      </div>
+
       <Popover
         width={260}
         trigger={(open, toggle) => (
@@ -154,8 +183,8 @@ export function Toolbar(): JSX.Element {
       <Popover
         width={330}
         trigger={(open, toggle) => (
-          <button className="btn icon" onClick={toggle} aria-expanded={open} title="Layout">
-            <LayoutGrid size={15} />
+          <button className="btn icon" onClick={toggle} aria-expanded={open} title="Shelf style">
+            <Palette size={15} />
           </button>
         )}
       >

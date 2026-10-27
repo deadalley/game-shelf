@@ -1,6 +1,6 @@
 import type { ColorMode } from '@shared/types'
 import { useLibrary } from '../../state/useLibrary'
-import { Segmented, ThemePicker, WrapperPicker } from '../LayoutPicker'
+import { LAYOUTS, Segmented, ThemePicker, WrapperPicker } from '../LayoutPicker'
 import { SettingRow, Switch } from './SettingsPage'
 
 const COLOR_MODES: { id: ColorMode; label: string }[] = [
@@ -23,6 +23,12 @@ export function AppearanceSection(): JSX.Element {
         <WrapperPicker value={s.wrapper} onChange={(wrapper) => update({ wrapper })} />
       </div>
       <div className="settings-card">
+        <SettingRow
+          title="Layout"
+          description="Flat shows every cover. Stacked lines games up spine by spine, like cases on a real shelf."
+        >
+          <Segmented id="set-layout" options={LAYOUTS} value={s.layout} onChange={(layout) => update({ layout })} />
+        </SettingRow>
         <SettingRow title="Color mode" description="Applies to the app interface. Shelf themes keep their own look.">
           <Segmented
             id="color-mode"

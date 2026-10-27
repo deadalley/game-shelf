@@ -349,3 +349,31 @@
   border-radius: 0;
   box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
 }
+
+/* ---------- Hover glow colour per shelf ---------- */
+
+.theme-old .card,
+.theme-old .spine-item {
+  --glow: rgba(255, 176, 96, 0.8);
+}
+
+.theme-modern .card,
+.theme-modern .spine-item {
+  --glow: rgba(130, 170, 255, 0.65);
+}
+
+.theme-pixel .card,
+.theme-pixel .spine-item {
+  --glow: rgba(255, 110, 210, 0.9);
+}
+
+/* Pixel glow: a hard-edged block of light instead of a soft blur */
+.theme-pixel .card-glow,
+.theme-pixel .spine-glow {
+  filter: none;
+  border-radius: 0;
+  height: 8px;
+  top: calc(var(--art-h) - 4px);
+  background: var(--glow);
+  transition-timing-function: steps(3);
+}

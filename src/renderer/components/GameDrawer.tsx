@@ -99,29 +99,9 @@ export function GameDrawer(): JSX.Element {
                   <div className="label">Last played</div>
                   <div className="value">{formatDate(game.lastPlayed)}</div>
                 </div>
-                <div className="stat">
-                  <div className="label">Installed</div>
-                  <div className="value">{game.installed ? formatDate(game.installedAt) : 'No'}</div>
-                </div>
-                <div className="stat">
-                  <div className="label">Collections</div>
-                  <div className="value">{game.collections.length || '—'}</div>
-                </div>
               </div>
 
               <div className="detail-list">
-                {game.collections.length > 0 && (
-                  <div>
-                    <div className="label">Collections</div>
-                    <div className="tag-list">
-                      {game.collections.map((c) => (
-                        <span className="tag" key={c}>
-                          {c}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
                 {game.installPath && (
                   <div>
                     <div className="label">Location</div>

@@ -37,6 +37,18 @@ const EMPTY: StoreData = {
   covers: {}
 }
 
+const SORTS: Settings['sort'][] = ['name', 'lastPlayed', 'playtime']
+const LAYOUTS: Settings['layout'][] = ['flat', 'stacked']
+
+/** Fixes values saved by older versions that no longer exist (e.g. the removed "Recently installed" sort). */
+export function sanitizeSettings(s: Settings): Settings {
+  return {
+    ...s,
+    sort: SORTS.includes(s.sort) ? s.sort : 'name',
+    layout: LAYOUTS.includes(s.layout) ? s.layout : 'flat'
+  }
+}
+
 /** A single JSON document on disk, written atomically and debounced. */
 export class Store {
   data: StoreData
@@ -53,7 +65,7 @@ export class Store {
       return {
         ...EMPTY,
         ...raw,
-        settings: { ...DEFAULT_SETTINGS, ...raw.settings },
+        settings: sanitizeSettings({ ...DEFAULT_SETTINGS, ...raw.settings }),
         scanned: { ...EMPTY.scanned, ...raw.scanned }
       }
     } catch {

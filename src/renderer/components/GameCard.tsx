@@ -1,8 +1,9 @@
 import { memo, useRef } from 'react'
 import { Clock, Download, Eye, EyeOff, Play } from 'lucide-react'
+import { isFavorite } from '@shared/favorites'
 import type { Game, Settings } from '@shared/types'
 import { formatPlaytime } from '../lib/organize'
-import { WrappedCover } from './Cover'
+import { FavoriteStar, WrappedCover } from './Cover'
 
 interface Props {
   game: Game
@@ -15,25 +16,16 @@ interface Props {
 
 function GameCardInner({ game, settings, onOpen, onPlay, onToggleHidden, onContextMenu }: Props): JSX.Element {
   const tiltRef = useRef<HTMLDivElement>(null)
-  const pixel = settings.theme === 'pixel'
   const playtime = formatPlaytime(game.playtimeMinutes)
   const canPlay = game.installed || !game.install
 
+  // The whole cover lifts on hover (CSS); the mouse only moves the light reflection.
   const onMove = (e: React.MouseEvent): void => {
     const el = tiltRef.current
-    // Hold the tilt still over buttons, or they slide out from under the cursor mid-click.
-    if (!el || (e.target as HTMLElement).closest('button')) return
+    if (!el) return
     const r = el.getBoundingClientRect()
-    const x = (e.clientX - r.left) / r.width
-    const y = (e.clientY - r.top) / r.height
-    el.style.transform = pixel
-      ? 'translateY(-8px)'
-      : `translateY(-6px) rotateX(${(0.5 - y) * 8}deg) rotateY(${(x - 0.5) * 10}deg)`
-    el.style.setProperty('--gx', `${x * 100}%`)
-    el.style.setProperty('--gy', `${y * 100}%`)
-  }
-  const onLeave = (): void => {
-    if (tiltRef.current) tiltRef.current.style.transform = ''
+    el.style.setProperty('--gx', `${((e.clientX - r.left) / r.width) * 100}%`)
+    el.style.setProperty('--gy', `${((e.clientY - r.top) / r.height) * 100}%`)
   }
 
   return (
@@ -53,16 +45,19 @@ function GameCardInner({ game, settings, onOpen, onPlay, onToggleHidden, onConte
         }
       }}
       onMouseMove={onMove}
-      onMouseLeave={onLeave}
       onContextMenu={(e) => {
         e.preventDefault()
         onContextMenu(game, e.clientX, e.clientY)
       }}
     >
+      <div className="card-glow" aria-hidden />
       <div className="card-tilt" ref={tiltRef}>
         <WrappedCover game={game} wrapper={settings.wrapper}>
           <div className="card-badges">
-            {!game.installed ? <span className="badge">Not installed</span> : <span />}
+            <span className="badge-group">
+              {isFavorite(game.collections) && <FavoriteStar />}
+              {!game.installed && <span className="badge">Not installed</span>}
+            </span>
             {game.hidden && (
               <span className="badge">
                 <EyeOff size={10} /> Hidden
