@@ -1,6 +1,13 @@
-# GameShelf
+<p align="center">
+  <img src="build/icon.png" alt="GameShelf icon" width="128" height="128" />
+</p>
 
-All your PC games from every launcher, on one shelf.
+<h1 align="center">GameShelf</h1>
+
+<p align="center">
+  All your PC games from every launcher, on one shelf.<br />
+  <a href="../../releases/latest"><strong>Download for Windows</strong></a>
+</p>
 
 GameShelf is a Windows app that finds the games you have in **Steam, Xbox (Microsoft Store / Game Pass), GOG, Epic Games, EA, Ubisoft Connect and Battle.net** and shows them as a shelf of covers. You can also add any other game yourself.
 

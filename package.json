@@ -5,6 +5,7 @@
   "description": "All your PC games from every launcher, on one shelf.",
   "author": "deadalley",
   "license": "MIT",
+  "repository": "github:deadalley/game-shelf",
   "private": true,
   "main": "./out/main/index.js",
   "scripts": {
