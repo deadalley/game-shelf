@@ -1,6 +1,15 @@
 import { create } from 'zustand'
 import { DEFAULT_SETTINGS, type Game, type LibraryPayload, type Settings } from '@shared/types'
 
+/** Where controller input currently goes, which decides the button hints shown. */
+export type ControllerContext = 'shelf' | 'drawer' | 'menu' | 'dialog' | 'settings'
+
+export interface ControllerState {
+  connected: boolean
+  name?: string
+  context: ControllerContext
+}
+
 export type Toast = { id: number; text: string; kind: 'info' | 'error'; action?: { label: string; run(): void } }
 
 interface LibraryState {
@@ -15,6 +24,7 @@ interface LibraryState {
   settingsOpen: boolean
   collapsed: Record<string, boolean>
   toasts: Toast[]
+  controller: ControllerState
 
   init(): Promise<void>
   rescan(): Promise<void>
@@ -31,6 +41,7 @@ interface LibraryState {
   toggleHidden(game: Game): Promise<void>
   toast(text: string, kind?: Toast['kind'], action?: Toast['action']): void
   dismissToast(id: number): void
+  setController(patch: Partial<ControllerState>): void
 }
 
 const api = window.gameshelf
@@ -49,6 +60,7 @@ export const useLibrary = create<LibraryState>((set, get) => ({
   settingsOpen: false,
   collapsed: {},
   toasts: [],
+  controller: { connected: false, context: 'shelf' },
 
   async init() {
     const [library, settings] = await Promise.all([api.getLibrary(), api.getSettings()])
@@ -111,6 +123,12 @@ export const useLibrary = create<LibraryState>((set, get) => ({
     const id = ++toastId
     set({ toasts: [...get().toasts, { id, text, kind, action }] })
     setTimeout(() => get().dismissToast(id), action ? 6000 : 3500)
+  },
+
+  setController(patch) {
+    const cur = get().controller
+    if (Object.entries(patch).every(([k, v]) => cur[k as keyof ControllerState] === v)) return
+    set({ controller: { ...cur, ...patch } })
   },
 
   dismissToast(id) {

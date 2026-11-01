@@ -2,12 +2,14 @@ import { useEffect } from 'react'
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import { AddGameDialog } from './components/AddGameDialog'
+import { ControllerHints } from './components/ControllerHints'
 import { EditGameDialog } from './components/EditGameDialog'
 import { GameDrawer } from './components/GameDrawer'
 import { SettingsPage } from './components/settings/SettingsPage'
 import { Shelf } from './components/Shelf'
 import { Toolbar } from './components/Toolbar'
 import { TopBar } from './components/TopBar'
+import { useGamepadNav } from './hooks/useGamepadNav'
 import { useLibrary } from './state/useLibrary'
 
 export function App(): JSX.Element {
@@ -20,6 +22,8 @@ export function App(): JSX.Element {
   useEffect(() => {
     void useLibrary.getState().init()
   }, [])
+
+  useGamepadNav()
 
   useEffect(() => {
     document.body.classList.toggle('no-anim', !animations)
@@ -52,6 +56,7 @@ export function App(): JSX.Element {
       <GameDrawer />
       <EditGameDialog />
       <AddGameDialog />
+      <ControllerHints />
       <div className="toasts" aria-live="polite">
         <AnimatePresence>
           {toasts.map((t) => (

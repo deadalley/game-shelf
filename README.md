@@ -26,6 +26,25 @@ GameShelf is a Windows app that finds the games you have in **Steam, Xbox (Micro
 - **Your own games.** Add any `.exe` with a name and cover. GameShelf tracks how long you play them.
 - **Settings page.** Turn whole libraries (launchers) on or off. Pick the shelf, cover style, color mode (System / Light / Dark), cover size and animations. Set default sorting and grouping, manage covers and hidden games, and see the scan report.
 
+## Controller
+
+GameShelf can be used entirely with an Xbox controller (or any standard gamepad). Connect it and press a button. While a controller is connected, a bar at the bottom of the window shows what each button does right now.
+
+| Button             | Action                                                  |
+| ------------------ | ------------------------------------------------------- |
+| D-pad / left stick | Move between games, buttons and fields                  |
+| A                  | Open a game's details / press the selected button       |
+| X                  | Play the selected game                                  |
+| Y                  | Options for the selected game (favorite, hide, edit…)   |
+| B                  | Back: close the details panel, menu, dialog or Settings |
+| LB / RB            | Previous / next launcher filter                         |
+| LT / RT            | Jump a page up / down                                   |
+| View               | Switch between Flat and Stacked                         |
+| Menu               | Open / close Settings                                   |
+| Right stick        | Scroll                                                  |
+
+Turn controller navigation or the button hints off in **Settings → Controller**.
+
 ## What each launcher provides
 
 | Launcher   | Installed | Not installed                                 | Hours / last played | Cover source                        |

@@ -59,7 +59,7 @@ export function GameDrawer(): JSX.Element {
               </span>
 
               <div className="drawer-actions">
-                <button className="btn primary lg" onClick={() => void launch(game)}>
+                <button className="btn primary lg" data-autofocus onClick={() => void launch(game)}>
                   {canPlay ? (
                     <>
                       <Play size={16} fill="currentColor" /> Play

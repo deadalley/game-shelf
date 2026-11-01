@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowLeft, EyeOff, Image, Info, LayoutGrid, Library, Palette, ScanSearch } from 'lucide-react'
+import { ArrowLeft, EyeOff, Gamepad2, Image, Info, LayoutGrid, Library, Palette, ScanSearch } from 'lucide-react'
 import { useLibrary } from '../../state/useLibrary'
 import { AppearanceSection } from './AppearanceSection'
 import { HiddenGamesSection } from './HiddenGamesSection'
 import { LibrariesSection } from './LibrariesSection'
-import { AboutSection, CoversSection, ScanSection, ViewSection } from './OtherSections'
+import { AboutSection, ControllerSection, CoversSection, ScanSection, ViewSection } from './OtherSections'
 
 const SECTIONS = [
   { id: 'libraries', label: 'Libraries', icon: Library, Component: LibrariesSection },
@@ -13,6 +13,7 @@ const SECTIONS = [
   { id: 'view', label: 'Library view', icon: LayoutGrid, Component: ViewSection },
   { id: 'covers', label: 'Covers', icon: Image, Component: CoversSection },
   { id: 'hidden', label: 'Hidden games', icon: EyeOff, Component: HiddenGamesSection },
+  { id: 'controller', label: 'Controller', icon: Gamepad2, Component: ControllerSection },
   { id: 'scan', label: 'Scan', icon: ScanSearch, Component: ScanSection },
   { id: 'about', label: 'About', icon: Info, Component: AboutSection }
 ]

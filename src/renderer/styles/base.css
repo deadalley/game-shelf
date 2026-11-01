@@ -157,9 +157,9 @@ textarea {
 .brand-mark {
   width: 26px;
   height: 26px;
-  border-radius: 7px;
   flex: none;
-  box-shadow: var(--shadow-sm);
+  /* The icon has rounded transparent corners, so the shadow follows its shape */
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
 }
 
 .brand-count {
@@ -2013,4 +2013,130 @@ body.no-anim .card-tilt {
 
 .theme-pixel .spine-play {
   border-radius: 0;
+}
+
+/* ---------- Controller ---------- */
+
+.card,
+.spine-item,
+.settings-section,
+.setting-row {
+  scroll-margin: 32px;
+}
+
+/* A clear selection ring while navigating with a controller */
+body.gamepad :focus-visible {
+  outline: 3px solid var(--pad-ring, #7c5cff);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--pad-ring, #7c5cff) 25%, transparent);
+  border-radius: 8px;
+}
+
+body.gamepad .card:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+body.gamepad .card:focus-visible .card-art,
+body.gamepad .card:focus-visible .case {
+  outline: 3px solid var(--pad-ring, #7c5cff);
+  outline-offset: 3px;
+}
+
+body.gamepad .spine-item:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+body.gamepad .spine-item:focus-visible .spine-lift {
+  outline: 3px solid var(--pad-ring, #7c5cff);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+body.has-pad-hints .stage-inner,
+body.has-pad-hints .settings-content {
+  padding-bottom: 110px;
+}
+
+body.has-pad-hints .toasts {
+  bottom: 84px;
+}
+
+.pad-hints {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  translate: -50% 0;
+  z-index: 95;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(14px) saturate(1.2);
+  color: var(--text);
+  font-weight: 550;
+  font-size: 12.5px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.pad-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.pad-glyph {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  height: 22px;
+  min-width: 22px;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  color: #fff;
+}
+
+.pad-glyph.face {
+  border-radius: 50%;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.25);
+}
+
+.face-a {
+  background: #3fa142;
+}
+.face-b {
+  background: #d9483b;
+}
+.face-x {
+  background: #2f7fd6;
+}
+.face-y {
+  background: #e3b021;
+  color: #2b2100;
+}
+
+.pad-glyph.pill {
+  padding: 0 7px;
+  border-radius: 6px;
+  background: var(--ink);
+  color: var(--ink-text);
+  font-size: 10px;
+  letter-spacing: 0.02em;
+}
+
+.pad-glyph.round {
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--ink-text);
+}
+
+.pad-map td:first-child {
+  width: 64px;
 }

@@ -99,6 +99,8 @@ export interface Settings {
   coverSize: number // px width of a cover
   disabledServices: Service[] // launchers that are neither scanned nor shown
   layout: LayoutId // covers facing out, or spines side by side
+  controller: boolean // navigate with a gamepad
+  controllerHints: boolean // show the button hints bar while a controller is connected
   colorMode: ColorMode
   animations: boolean
 }
@@ -117,6 +119,8 @@ export const DEFAULT_SETTINGS: Settings = {
   coverSize: 150,
   disabledServices: [],
   layout: 'flat',
+  controller: true,
+  controllerHints: true,
   colorMode: 'system',
   animations: true
 }

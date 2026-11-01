@@ -34,6 +34,7 @@ function GameCardInner({ game, settings, onOpen, onPlay, onToggleHidden, onConte
       role="button"
       tabIndex={0}
       aria-label={game.name}
+      data-game-id={game.id}
       title={game.name}
       onClick={() => onOpen(game)}
       onDoubleClick={() => onPlay(game)}

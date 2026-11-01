@@ -4,6 +4,7 @@ import { SERVICE_LABELS } from '@shared/types'
 import { formatDate } from '../../lib/organize'
 import { useLibrary } from '../../state/useLibrary'
 import { GROUPS, SORTS, Segmented } from '../LayoutPicker'
+import { ButtonGlyph } from '../ControllerHints'
 import { SettingRow, Switch } from './SettingsPage'
 
 export function ViewSection(): JSX.Element {
@@ -132,6 +133,65 @@ export function ScanSection(): JSX.Element {
                   {r.found} {r.found === 1 ? 'game' : 'games'}
                 </td>
                 <td className="num">{(r.durationMs / 1000).toFixed(1)}s</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  )
+}
+
+export function ControllerSection(): JSX.Element {
+  const s = useLibrary((st) => st.settings)
+  const pad = useLibrary((st) => st.controller)
+  const update = useLibrary((st) => st.updateSettings)
+  const map: [Parameters<typeof ButtonGlyph>[0]['glyph'], string][] = [
+    ['D-pad', 'Move between games, buttons and fields (left stick works too)'],
+    ['A', 'Open details / press the selected button'],
+    ['X', 'Play the selected game'],
+    ['Y', 'Options for the selected game (favorite, hide, edit…)'],
+    ['B', 'Back: close the panel, menu, dialog or Settings'],
+    ['LB/RB', 'Previous / next launcher filter'],
+    ['LT/RT', 'Jump a page up / down'],
+    ['View', 'Switch between Flat and Stacked'],
+    ['Menu', 'Open / close Settings']
+  ]
+  return (
+    <>
+      <div className="settings-card">
+        <SettingRow
+          title="Controller navigation"
+          description={
+            pad.connected
+              ? `Connected: ${pad.name?.replace(/\s*\(.*\)\s*$/, '') || 'controller'}`
+              : 'Connect an Xbox controller (or any standard gamepad) and press a button.'
+          }
+          onClick={() => update({ controller: !s.controller })}
+        >
+          <Switch on={s.controller} onChange={(controller) => update({ controller })} label="Controller navigation" />
+        </SettingRow>
+        <SettingRow
+          title="Show button hints"
+          description="A bar at the bottom of the window listing what each button does."
+          onClick={() => update({ controllerHints: !s.controllerHints })}
+        >
+          <Switch
+            on={s.controllerHints}
+            onChange={(controllerHints) => update({ controllerHints })}
+            label="Show button hints"
+          />
+        </SettingRow>
+      </div>
+      <div className="settings-card">
+        <table className="report pad-map">
+          <tbody>
+            {map.map(([glyph, text]) => (
+              <tr key={glyph}>
+                <td>
+                  <ButtonGlyph glyph={glyph} />
+                </td>
+                <td>{text}</td>
               </tr>
             ))}
           </tbody>

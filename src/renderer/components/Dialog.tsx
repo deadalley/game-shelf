@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
 
@@ -17,6 +17,18 @@ export function Dialog({
   footer?: React.ReactNode
   width?: number
 }): JSX.Element {
+  const bodyRef = useRef<HTMLDivElement>(null)
+
+  // Put focus on the first field, so keyboard and controller users can start right away.
+  useEffect(() => {
+    if (!open) return
+    const t = window.setTimeout(() => {
+      const first = bodyRef.current?.querySelector<HTMLElement>('input, select, textarea, button')
+      first?.focus({ preventScroll: true })
+    }, 60)
+    return () => window.clearTimeout(t)
+  }, [open])
+
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent): void => {
@@ -57,7 +69,9 @@ export function Dialog({
                 <X size={17} />
               </button>
             </div>
-            <div className="dialog-body">{children}</div>
+            <div className="dialog-body" ref={bodyRef}>
+              {children}
+            </div>
             {footer && <div className="dialog-foot">{footer}</div>}
           </motion.div>
         </div>
