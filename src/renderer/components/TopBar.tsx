@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { Library, Plus, RefreshCw, Search, Settings2 } from 'lucide-react'
+import { Plus, RefreshCw, Search, Settings2 } from 'lucide-react'
+import appIcon from '../assets/app-icon.png'
 import { useLibrary } from '../state/useLibrary'
 
 export function TopBar(): JSX.Element {
@@ -25,9 +26,7 @@ export function TopBar(): JSX.Element {
   return (
     <header className="titlebar">
       <div className="brand">
-        <span className="brand-mark">
-          <Library size={14} />
-        </span>
+        <img className="brand-mark" src={appIcon} alt="" draggable={false} />
         GameShelf
         <span className="brand-count">
           {total} {total === 1 ? 'game' : 'games'}
