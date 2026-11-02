@@ -228,11 +228,24 @@ function registerIpc(): void {
 
   ipcMain.handle('covers:refresh', () => refreshCovers())
   ipcMain.handle('app:openData', () => void shell.openPath(app.getPath('userData')))
+  ipcMain.handle('window:fullscreen:get', () => !!win?.isFullScreen())
+  ipcMain.handle('window:fullscreen:set', (_e, on: boolean) => {
+    win?.setFullScreen(!!on)
+    return !!on
+  })
+  ipcMain.handle('window:fullscreen:toggle', () => toggleFullscreen())
+
   ipcMain.handle('app:info', () => ({
     version,
     dataPath: app.getPath('userData'),
     mock: !!process.env.GAMESHELF_FIXTURES
   }))
+}
+
+function toggleFullscreen(): boolean {
+  if (!win) return false
+  win.setFullScreen(!win.isFullScreen())
+  return win.isFullScreen()
 }
 
 function createWindow(): void {
@@ -255,7 +268,12 @@ function createWindow(): void {
     }
   })
 
-  win.once('ready-to-show', () => win?.show())
+  win.once('ready-to-show', () => {
+    if (store.data.settings.startFullscreen) win?.setFullScreen(true)
+    win?.show()
+  })
+  win.on('enter-full-screen', () => win?.webContents.send('window:fullscreen', true))
+  win.on('leave-full-screen', () => win?.webContents.send('window:fullscreen', false))
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (/^https:\/\//.test(url)) void shell.openExternal(url)
     return { action: 'deny' }

@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useLibrary, type ControllerContext } from '../state/useLibrary'
 
-type Glyph = 'A' | 'B' | 'X' | 'Y' | 'LB/RB' | 'LT/RT' | 'View' | 'Menu' | 'D-pad'
+type Glyph = 'A' | 'B' | 'X' | 'Y' | 'LB/RB' | 'LT/RT' | 'LS' | 'View' | 'Menu' | 'D-pad'
 type Hint = [Glyph, string]
 
 /** What each button does in each part of the app. */
@@ -14,7 +14,8 @@ export const HINTS: Record<ControllerContext, Hint[]> = {
     ['Y', 'Options'],
     ['LB/RB', 'Filter'],
     ['View', 'Layout'],
-    ['Menu', 'Settings']
+    ['Menu', 'Settings'],
+    ['LS', 'Fullscreen']
   ],
   drawer: [
     ['D-pad', 'Move'],

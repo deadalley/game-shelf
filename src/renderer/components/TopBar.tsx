@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { Plus, RefreshCw, Search, Settings2 } from 'lucide-react'
+import { Maximize, Minimize, Plus, RefreshCw, Search, Settings2 } from 'lucide-react'
 import appIcon from '../assets/app-icon.png'
 import { useLibrary } from '../state/useLibrary'
 
@@ -7,6 +7,8 @@ export function TopBar(): JSX.Element {
   const search = useLibrary((s) => s.search)
   const scanning = useLibrary((s) => s.scanning)
   const settingsOpen = useLibrary((s) => s.settingsOpen)
+  const fullscreen = useLibrary((s) => s.fullscreen)
+  const toggleFullscreen = useLibrary((s) => s.toggleFullscreen)
   const total = useLibrary((s) => s.library.games.filter((g) => !g.hidden).length)
   const { setSearch, rescan, setAddOpen, setSettingsOpen } = useLibrary.getState()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -52,6 +54,14 @@ export function TopBar(): JSX.Element {
           disabled={scanning}
         >
           <RefreshCw size={16} className={scanning ? 'spin' : ''} />
+        </button>
+        <button
+          className="btn ghost icon"
+          title={fullscreen ? 'Exit fullscreen (F11)' : 'Fullscreen (F11)'}
+          aria-pressed={fullscreen}
+          onClick={() => void toggleFullscreen()}
+        >
+          {fullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
         </button>
         <button
           className={`btn ghost icon${settingsOpen ? ' active' : ''}`}

@@ -2140,3 +2140,8 @@ body.has-pad-hints .toasts {
 .pad-map td:first-child {
   width: 64px;
 }
+
+/* Windows hides the window controls in fullscreen, so the space kept for them isn't needed */
+body.fullscreen .titlebar {
+  padding-right: 16px;
+}

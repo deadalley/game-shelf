@@ -18,6 +18,7 @@ export function App(): JSX.Element {
   const animations = useLibrary((s) => s.settings.animations)
   const dismissToast = useLibrary((s) => s.dismissToast)
   const colorMode = useLibrary((s) => s.settings.colorMode)
+  const fullscreen = useLibrary((s) => s.fullscreen)
 
   useEffect(() => {
     void useLibrary.getState().init()
@@ -32,6 +33,21 @@ export function App(): JSX.Element {
   useEffect(() => {
     document.documentElement.dataset.theme = colorMode
   }, [colorMode])
+
+  useEffect(() => {
+    document.body.classList.toggle('fullscreen', fullscreen)
+  }, [fullscreen])
+
+  // F11 toggles fullscreen from anywhere in the app, including text fields.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent): void => {
+      if (e.key !== 'F11' || e.repeat) return
+      e.preventDefault()
+      void useLibrary.getState().toggleFullscreen()
+    }
+    window.addEventListener('keydown', onKey, true)
+    return () => window.removeEventListener('keydown', onKey, true)
+  }, [])
 
   // Height of the title bar plus toolbar; the details panel opens below it.
   useEffect(() => {

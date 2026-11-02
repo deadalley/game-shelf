@@ -164,6 +164,9 @@ export function useGamepadNav(): void {
         case BTN.VIEW:
           s.updateSettings({ layout: s.settings.layout === 'flat' ? 'stacked' : 'flat' })
           return
+        case BTN.LS:
+          void s.toggleFullscreen()
+          return
         case BTN.MENU: {
           const opening = !s.settingsOpen
           s.setSettingsOpen(opening)
@@ -208,7 +211,7 @@ export function useGamepadNav(): void {
         if (btn(b)) any = true
         if (pages[d].update(btn(b), now)) for (let i = 0; i < 3; i++) move(d)
       }
-      for (const b of [BTN.A, BTN.B, BTN.X, BTN.Y, BTN.LB, BTN.RB, BTN.VIEW, BTN.MENU]) {
+      for (const b of [BTN.A, BTN.B, BTN.X, BTN.Y, BTN.LB, BTN.RB, BTN.VIEW, BTN.MENU, BTN.LS]) {
         const down = btn(b)
         if (down) any = true
         if (down && !prev[b]) press(b)

@@ -17,6 +17,13 @@ const api: GameShelfApi = {
   refreshCovers: () => ipcRenderer.invoke('covers:refresh'),
   openDataFolder: () => ipcRenderer.invoke('app:openData'),
   getAppInfo: () => ipcRenderer.invoke('app:info'),
+  toggleFullscreen: () => ipcRenderer.invoke('window:fullscreen:toggle'),
+  isFullscreen: () => ipcRenderer.invoke('window:fullscreen:get'),
+  onFullscreenChanged: (cb) => {
+    const listener = (_e: unknown, on: boolean): void => cb(on)
+    ipcRenderer.on('window:fullscreen', listener)
+    return () => ipcRenderer.removeListener('window:fullscreen', listener)
+  },
   onLibraryChanged: (cb) => {
     const listener = (_e: unknown, lib: LibraryPayload): void => cb(lib)
     ipcRenderer.on('library:changed', listener)

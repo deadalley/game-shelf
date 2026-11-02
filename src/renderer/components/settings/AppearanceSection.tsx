@@ -13,6 +13,8 @@ const COLOR_MODES: { id: ColorMode; label: string }[] = [
 export function AppearanceSection(): JSX.Element {
   const s = useLibrary((st) => st.settings)
   const update = useLibrary((st) => st.updateSettings)
+  const fullscreen = useLibrary((st) => st.fullscreen)
+  const toggleFullscreen = useLibrary((st) => st.toggleFullscreen)
   return (
     <>
       <h3>Shelf</h3>
@@ -29,6 +31,24 @@ export function AppearanceSection(): JSX.Element {
           description="Flat shows every cover. Stacked lines games up spine by spine, like cases on a real shelf."
         >
           <Segmented id="set-layout" options={LAYOUTS} value={s.layout} onChange={(layout) => update({ layout })} />
+        </SettingRow>
+        <SettingRow
+          title="Fullscreen"
+          description="Fill the whole screen. Also F11, the button in the title bar, or clicking the controller's left stick."
+          onClick={() => void toggleFullscreen()}
+        >
+          <Switch on={fullscreen} onChange={() => void toggleFullscreen()} label="Fullscreen" />
+        </SettingRow>
+        <SettingRow
+          title="Start in fullscreen"
+          description="Open GameShelf fullscreen every time it starts."
+          onClick={() => update({ startFullscreen: !s.startFullscreen })}
+        >
+          <Switch
+            on={s.startFullscreen}
+            onChange={(startFullscreen) => update({ startFullscreen })}
+            label="Start in fullscreen"
+          />
         </SettingRow>
         <SettingRow title="Color mode" description="Applies to the app interface. Shelf themes keep their own look.">
           <Segmented

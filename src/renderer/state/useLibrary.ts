@@ -25,6 +25,7 @@ interface LibraryState {
   collapsed: Record<string, boolean>
   toasts: Toast[]
   controller: ControllerState
+  fullscreen: boolean
 
   init(): Promise<void>
   rescan(): Promise<void>
@@ -42,6 +43,7 @@ interface LibraryState {
   toast(text: string, kind?: Toast['kind'], action?: Toast['action']): void
   dismissToast(id: number): void
   setController(patch: Partial<ControllerState>): void
+  toggleFullscreen(): Promise<void>
 }
 
 const api = window.gameshelf
@@ -61,12 +63,15 @@ export const useLibrary = create<LibraryState>((set, get) => ({
   collapsed: {},
   toasts: [],
   controller: { connected: false, context: 'shelf' },
+  fullscreen: false,
 
   async init() {
     const [library, settings] = await Promise.all([api.getLibrary(), api.getSettings()])
     // The main process rescans at startup; treat that as in-progress until the first update arrives.
     set({ library, settings, ready: true, scanning: true })
     api.onLibraryChanged((lib) => set({ library: lib, scanning: false }))
+    api.onFullscreenChanged((fullscreen) => set({ fullscreen }))
+    set({ fullscreen: await api.isFullscreen() })
   },
 
   async rescan() {
@@ -123,6 +128,10 @@ export const useLibrary = create<LibraryState>((set, get) => ({
     const id = ++toastId
     set({ toasts: [...get().toasts, { id, text, kind, action }] })
     setTimeout(() => get().dismissToast(id), action ? 6000 : 3500)
+  },
+
+  async toggleFullscreen() {
+    await api.toggleFullscreen()
   },
 
   setController(patch) {

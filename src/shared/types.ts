@@ -101,6 +101,7 @@ export interface Settings {
   layout: LayoutId // covers facing out, or spines side by side
   controller: boolean // navigate with a gamepad
   controllerHints: boolean // show the button hints bar while a controller is connected
+  startFullscreen: boolean
   colorMode: ColorMode
   animations: boolean
 }
@@ -121,6 +122,7 @@ export const DEFAULT_SETTINGS: Settings = {
   layout: 'flat',
   controller: true,
   controllerHints: true,
+  startFullscreen: false,
   colorMode: 'system',
   animations: true
 }
@@ -157,4 +159,7 @@ export interface GameShelfApi {
   openDataFolder(): Promise<void>
   getAppInfo(): Promise<{ version: string; dataPath: string; mock: boolean }>
   onLibraryChanged(cb: (lib: LibraryPayload) => void): () => void
+  toggleFullscreen(): Promise<boolean>
+  isFullscreen(): Promise<boolean>
+  onFullscreenChanged(cb: (fullscreen: boolean) => void): () => void
 }

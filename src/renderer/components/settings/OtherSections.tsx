@@ -155,7 +155,8 @@ export function ControllerSection(): JSX.Element {
     ['LB/RB', 'Previous / next launcher filter'],
     ['LT/RT', 'Jump a page up / down'],
     ['View', 'Switch between Flat and Stacked'],
-    ['Menu', 'Open / close Settings']
+    ['Menu', 'Open / close Settings'],
+    ['LS', 'Fullscreen on / off (click the left stick)']
   ]
   return (
     <>
