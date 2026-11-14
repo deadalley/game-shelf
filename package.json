@@ -1,7 +1,7 @@
 {
   "name": "gameshelf",
   "productName": "GameShelf",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "All your PC games from every launcher, on one shelf.",
   "author": "deadalley",
   "license": "MIT",
@@ -21,6 +21,7 @@
     "dist": "electron-vite build && electron-builder --win --x64 --publish never"
   },
   "dependencies": {
+    "electron-updater": "6.8.12",
     "sql.js": "1.13.0"
   },
   "devDependencies": {

@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { GameShelfApi, LibraryPayload } from '@shared/types'
+import type { GameShelfApi, LibraryPayload, UpdateState } from '@shared/types'
 
 const api: GameShelfApi = {
   getLibrary: () => ipcRenderer.invoke('library:get'),
@@ -23,6 +23,15 @@ const api: GameShelfApi = {
     const listener = (_e: unknown, on: boolean): void => cb(on)
     ipcRenderer.on('window:fullscreen', listener)
     return () => ipcRenderer.removeListener('window:fullscreen', listener)
+  },
+  getUpdateState: () => ipcRenderer.invoke('update:get'),
+  checkForUpdates: (manual) => ipcRenderer.invoke('update:check', !!manual),
+  downloadUpdate: () => ipcRenderer.invoke('update:download'),
+  installUpdate: () => ipcRenderer.invoke('update:install'),
+  onUpdateState: (cb) => {
+    const listener = (_e: unknown, state: UpdateState, manual: boolean): void => cb(state, manual)
+    ipcRenderer.on('update:state', listener)
+    return () => ipcRenderer.removeListener('update:state', listener)
   },
   onLibraryChanged: (cb) => {
     const listener = (_e: unknown, lib: LibraryPayload): void => cb(lib)

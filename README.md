@@ -22,6 +22,7 @@ GameShelf is a Windows app that finds the games you have in **Steam, Xbox (Micro
 - **Display.** Toggle titles and hours played, resize covers, and show or hide games you've hidden.
 - **Fullscreen.** Press F11, use the button in the title bar, or click the controller's left stick. **Settings → Appearance → Start in fullscreen** opens it that way every time.
 - **Shelf only.** The eye button in the title bar hides every menu and button so only the shelves are on screen; the button at the top centre (or Esc, or the controller's right stick) brings them back.
+- **Updates.** GameShelf checks the releases page at startup and every few hours. When a new version is out, an **Update** button appears in the title bar; it downloads only when you click it, then **Restart to update** installs it (or it installs the next time you quit). **Settings → About** has **Check now** and a switch to stop the automatic checks.
 - **Shelf background.** On Windows 11, a slider in the toolbar's **Shelf style** menu (and **Settings → Appearance**) fades the wall behind the shelves: 100% is the normal wall, lower dims it over your blurred desktop, and 0% removes it entirely. Menus and other screens stay solid.
 - **Layouts.** _Flat_ shows every cover; _Stacked_ lines games up spine by spine like cases on a real shelf. Hover a spine and it slides out and turns to face you; click it to open its details. Four shelves: _Clean_, _Old shelf_, _Modern shelf_ and _Pixel shelf_. Three cover styles: plain, PS-style case or Xbox-style case.
 - **Play.** Click a cover's play button or double-click it to launch through the game's launcher. Games that aren't installed open the launcher's install page instead.
@@ -91,6 +92,7 @@ npm install
 npm run dev:mock                   # hot-reloading dev build on mock data
 npm run dev:mock -- --reset        # start over: new mock machine, mock settings wiped
 npm run dev:mock -- --games 500    # add 500 generated Steam games to test a big library
+npm run dev:mock -- --update 9.9.9 # pretend a new version was released, to try the update flow
 npm run preview:mock               # the production build on mock data
 ```
 
@@ -126,5 +128,7 @@ scripts/             dev-mock.mjs (run on mock data) and make-fixtures.ts
 1. On GitHub, open **Releases → Draft a new release**.
 2. Create a new tag such as `v0.3.0` on `main`, add notes, and click **Publish release**.
 3. The workflow builds the installer on `windows-latest` and attaches `GameShelf-Setup-0.3.0.exe` to the release after about 10 minutes. The version comes from the tag. Progress is visible in the **Actions** tab.
+
+Installed copies find the new version on their own: the workflow also attaches `latest.yml` and the installer's `.blockmap`, which is what the app reads. Updates need the repository to be **public**, because the app downloads from the releases page without logging in.
 
 Every push to `main` also uploads the installer as a workflow artifact (Actions → the run → _Artifacts_).

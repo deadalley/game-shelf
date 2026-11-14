@@ -106,6 +106,7 @@ export interface Settings {
   shelfBackground: number // 0–100: how solid the shelf wall is; 100 = solid, 1–99 = dimmed over blurred desktop, 0 = none
   colorMode: ColorMode
   animations: boolean
+  checkForUpdates: boolean // look for new versions at startup and every few hours
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -127,6 +128,7 @@ export const DEFAULT_SETTINGS: Settings = {
   startFullscreen: false,
   shelfOnly: false,
   shelfBackground: 100,
+  checkForUpdates: true,
   colorMode: 'system',
   animations: true
 }
@@ -145,6 +147,17 @@ export interface LibraryPayload {
   report: ScanReportEntry[]
   scannedAt: number
 }
+
+/** Where the app is in finding and installing a new version. */
+export type UpdateState =
+  | { status: 'unsupported' } // dev builds, mock mode, or not Windows
+  | { status: 'idle' }
+  | { status: 'checking' }
+  | { status: 'none'; checkedAt: number }
+  | { status: 'available'; version: string }
+  | { status: 'downloading'; version: string; percent: number }
+  | { status: 'ready'; version: string }
+  | { status: 'error'; message: string }
 
 export interface GameShelfApi {
   getLibrary(): Promise<LibraryPayload>
@@ -166,4 +179,11 @@ export interface GameShelfApi {
   toggleFullscreen(): Promise<boolean>
   isFullscreen(): Promise<boolean>
   onFullscreenChanged(cb: (fullscreen: boolean) => void): () => void
+  getUpdateState(): Promise<UpdateState>
+  /** Looks for a new version now. `manual` checks report "up to date" and errors. */
+  checkForUpdates(manual?: boolean): Promise<void>
+  downloadUpdate(): Promise<void>
+  /** Quits, installs the downloaded version and starts it again. */
+  installUpdate(): Promise<void>
+  onUpdateState(cb: (state: UpdateState, manual: boolean) => void): () => void
 }

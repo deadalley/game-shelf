@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { Eye, Maximize, Minimize, Plus, RefreshCw, Search, Settings2 } from 'lucide-react'
+import { Download, Eye, Loader2, Maximize, Minimize, Plus, RefreshCw, RotateCw, Search, Settings2 } from 'lucide-react'
 import appIcon from '../assets/app-icon.png'
 import { useLibrary } from '../state/useLibrary'
 
@@ -56,6 +56,7 @@ export function TopBar(): JSX.Element {
         >
           <RefreshCw size={16} className={scanning ? 'spin' : ''} />
         </button>
+        <UpdateButton />
         <button className="btn ghost icon" title="Shelf only: hide all menus" onClick={() => setShelfOnly(true)}>
           <Eye size={16} />
         </button>
@@ -81,4 +82,32 @@ export function TopBar(): JSX.Element {
       </div>
     </header>
   )
+}
+
+/** Shows up only while a new version is waiting: download it, watch it download, then restart into it. */
+function UpdateButton(): JSX.Element | null {
+  const update = useLibrary((s) => s.update)
+  const { downloadUpdate, installUpdate } = useLibrary.getState()
+  if (update.status === 'available') {
+    return (
+      <button className="btn update-pill" title={`Download GameShelf ${update.version}`} onClick={downloadUpdate}>
+        <Download size={14} /> Update
+      </button>
+    )
+  }
+  if (update.status === 'downloading') {
+    return (
+      <button className="btn update-pill" title={`Downloading GameShelf ${update.version}`} disabled>
+        <Loader2 size={14} className="spin" /> {update.percent}%
+      </button>
+    )
+  }
+  if (update.status === 'ready') {
+    return (
+      <button className="btn update-pill" title={`Restart into GameShelf ${update.version}`} onClick={installUpdate}>
+        <RotateCw size={14} /> Restart to update
+      </button>
+    )
+  }
+  return null
 }

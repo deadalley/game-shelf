@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { ExternalLink, FolderOpen, ImageDown, RefreshCw } from 'lucide-react'
-import { SERVICE_LABELS } from '@shared/types'
+import { Download, ExternalLink, FolderOpen, ImageDown, RefreshCw, RotateCw } from 'lucide-react'
+import { SERVICE_LABELS, type UpdateState } from '@shared/types'
 import { formatDate } from '../../lib/organize'
 import { useLibrary } from '../../state/useLibrary'
 import { GROUPS, SORTS, Segmented } from '../LayoutPicker'
@@ -219,11 +219,75 @@ export function AboutSection(): JSX.Element {
         }
         description="All your PC games from every launcher, on one shelf."
       />
+      <UpdateRows />
       <SettingRow title="Data folder" description={<span className="mono">{info?.dataPath}</span>}>
         <button className="btn" onClick={() => void window.gameshelf.openDataFolder()}>
           <FolderOpen size={15} /> Open
         </button>
       </SettingRow>
     </div>
+  )
+}
+
+function updateDescription(u: UpdateState): string {
+  switch (u.status) {
+    case 'unsupported':
+      return 'Updates work in the installed app.'
+    case 'idle':
+      return 'New versions come from the GitHub releases page.'
+    case 'checking':
+      return 'Checking…'
+    case 'none':
+      return `You're on the latest version. Last checked ${new Date(u.checkedAt).toLocaleTimeString()}.`
+    case 'available':
+      return `GameShelf ${u.version} is available.`
+    case 'downloading':
+      return `Downloading GameShelf ${u.version}… ${u.percent}%`
+    case 'ready':
+      return `GameShelf ${u.version} is downloaded. Restart to install it, or it installs when you quit.`
+    case 'error':
+      return u.message
+  }
+}
+
+function UpdateRows(): JSX.Element {
+  const update = useLibrary((s) => s.update)
+  const s = useLibrary((st) => st.settings)
+  const set = useLibrary((st) => st.updateSettings)
+  const { downloadUpdate, installUpdate } = useLibrary.getState()
+  const unsupported = update.status === 'unsupported'
+  return (
+    <>
+      <SettingRow title="Updates" description={updateDescription(update)}>
+        {update.status === 'available' ? (
+          <button className="btn primary" onClick={downloadUpdate}>
+            <Download size={15} /> Download
+          </button>
+        ) : update.status === 'ready' ? (
+          <button className="btn primary" onClick={installUpdate}>
+            <RotateCw size={15} /> Restart
+          </button>
+        ) : (
+          <button
+            className="btn"
+            onClick={() => void window.gameshelf.checkForUpdates(true)}
+            disabled={unsupported || update.status === 'checking' || update.status === 'downloading'}
+          >
+            <RefreshCw size={15} className={update.status === 'checking' ? 'spin' : ''} /> Check now
+          </button>
+        )}
+      </SettingRow>
+      <SettingRow
+        title="Check for updates automatically"
+        description="Looks for a new version at startup and every few hours, and asks before downloading it."
+        onClick={() => set({ checkForUpdates: !s.checkForUpdates })}
+      >
+        <Switch
+          on={s.checkForUpdates}
+          onChange={(checkForUpdates) => set({ checkForUpdates })}
+          label="Check for updates automatically"
+        />
+      </SettingRow>
+    </>
   )
 }

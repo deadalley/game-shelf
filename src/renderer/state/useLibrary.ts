@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { DEFAULT_SETTINGS, type Game, type LibraryPayload, type Settings } from '@shared/types'
+import { DEFAULT_SETTINGS, type Game, type LibraryPayload, type Settings, type UpdateState } from '@shared/types'
 
 /** Where controller input currently goes, which decides the button hints shown. */
 export type ControllerContext = 'shelf' | 'drawer' | 'menu' | 'dialog' | 'settings'
@@ -28,6 +28,7 @@ interface LibraryState {
   fullscreen: boolean
   /** Whether this system can show the frosted-glass background (Windows 11 22H2+). */
   acrylic: boolean
+  update: UpdateState
 
   init(): Promise<void>
   rescan(): Promise<void>
@@ -42,15 +43,19 @@ interface LibraryState {
   launch(game: Game): Promise<void>
   install(game: Game): Promise<void>
   toggleHidden(game: Game): Promise<void>
-  toast(text: string, kind?: Toast['kind'], action?: Toast['action']): void
+  toast(text: string, kind?: Toast['kind'], action?: Toast['action']): number
   dismissToast(id: number): void
   setController(patch: Partial<ControllerState>): void
   toggleFullscreen(): Promise<void>
   setShelfOnly(on: boolean): void
+  downloadUpdate(): void
+  installUpdate(): void
 }
 
 const api = window.gameshelf
 let toastId = 0
+/** The current update toast, replaced as the update moves on (available → ready). */
+let updateToastId = 0
 
 export const useLibrary = create<LibraryState>((set, get) => ({
   ready: false,
@@ -67,6 +72,7 @@ export const useLibrary = create<LibraryState>((set, get) => ({
   controller: { connected: false, context: 'shelf' },
   fullscreen: false,
   acrylic: false,
+  update: { status: 'unsupported' },
 
   async init() {
     const [library, settings] = await Promise.all([api.getLibrary(), api.getSettings()])
@@ -76,6 +82,22 @@ export const useLibrary = create<LibraryState>((set, get) => ({
     api.onFullscreenChanged((fullscreen) => set({ fullscreen }))
     set({ fullscreen: await api.isFullscreen() })
     set({ acrylic: (await api.getAppInfo()).acrylic })
+    set({ update: await api.getUpdateState() })
+    api.onUpdateState((update, manual) => {
+      const prev = get().update
+      set({ update })
+      if (update.status !== prev.status) get().dismissToast(updateToastId)
+      const toast: LibraryState['toast'] = (...args) => (updateToastId = get().toast(...args))
+      if (update.status === 'available' && prev.status !== 'available') {
+        toast(`GameShelf ${update.version} is available`, 'info', { label: 'Download', run: get().downloadUpdate })
+      } else if (update.status === 'ready' && prev.status !== 'ready') {
+        toast(`GameShelf ${update.version} is ready to install`, 'info', { label: 'Restart', run: get().installUpdate })
+      } else if (update.status === 'none' && manual) {
+        toast("You're on the latest version")
+      } else if (update.status === 'error' && (manual || prev.status === 'downloading')) {
+        toast(update.message, 'error')
+      }
+    })
   },
 
   async rescan() {
@@ -132,11 +154,20 @@ export const useLibrary = create<LibraryState>((set, get) => ({
     const id = ++toastId
     set({ toasts: [...get().toasts, { id, text, kind, action }] })
     setTimeout(() => get().dismissToast(id), action ? 6000 : 3500)
+    return id
   },
 
   setShelfOnly(on) {
     if (on) set({ settingsOpen: false })
     get().updateSettings({ shelfOnly: on })
+  },
+
+  downloadUpdate() {
+    void api.downloadUpdate()
+  },
+
+  installUpdate() {
+    void api.installUpdate()
   },
 
   async toggleFullscreen() {

@@ -11,6 +11,7 @@ import { COVER_SCHEME, allCollections, buildGames, coverFile } from './library'
 import { createScanContext } from './scanners/context'
 import { SCANNERS, scanAll } from './scanners'
 import { mapLimit } from './util/fs'
+import { createUpdater, type Updater } from './updater'
 import { version } from '../../package.json'
 
 if (process.env.GAMESHELF_USER_DATA) app.setPath('userData', process.env.GAMESHELF_USER_DATA)
@@ -237,6 +238,14 @@ function registerIpc(): void {
   })
   ipcMain.handle('window:fullscreen:toggle', () => toggleFullscreen())
 
+  ipcMain.handle('update:get', () => updater.state())
+  ipcMain.handle('update:check', (_e, manual: boolean) => updater.check(manual))
+  ipcMain.handle('update:download', () => updater.download())
+  ipcMain.handle('update:install', async () => {
+    await store.flush()
+    updater.install()
+  })
+
   ipcMain.handle('app:info', () => ({
     version,
     dataPath: app.getPath('userData'),
@@ -265,6 +274,24 @@ function applyBackdrop(): void {
   if (process.platform === 'win32' && acrylicSupported && !fakeAcrylic) {
     win.setBackgroundMaterial(level > 0 && level < 100 ? 'acrylic' : 'none')
   }
+}
+
+let updater: Updater
+const UPDATE_CHECK_EVERY_MS = 6 * 60 * 60 * 1000
+
+/** Checks GitHub for a new version shortly after startup and every few hours, while the setting is on. */
+function startUpdater(): void {
+  const fake = process.env.GAMESHELF_FAKE_UPDATE
+  updater = createUpdater((state, manual) => win?.webContents.send('update:state', state, manual), {
+    enabled: app.isPackaged && process.platform === 'win32' && !process.env.GAMESHELF_FIXTURES,
+    fake,
+    quit: () => void store.flush().finally(() => app.exit(0))
+  })
+  const autoCheck = (): void => {
+    if (store.data.settings.checkForUpdates) void updater.check(false)
+  }
+  setTimeout(autoCheck, fake ? 1500 : 15_000)
+  setInterval(autoCheck, UPDATE_CHECK_EVERY_MS)
 }
 
 function toggleFullscreen(): boolean {
@@ -355,6 +382,7 @@ if (!app.requestSingleInstanceLock()) {
     })
 
     registerIpc()
+    startUpdater()
     createWindow()
     // Show the cached library instantly, then refresh from the launchers.
     void rescan().then(() => broadcast())

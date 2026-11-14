@@ -21,3 +21,9 @@ nsis:
   createDesktopShortcut: true
   createStartMenuShortcut: true
   shortcutName: GameShelf
+# Writes latest.yml next to the installer; the app reads it from the GitHub release to find updates.
+publish:
+  provider: github
+  owner: deadalley
+  repo: game-shelf
+  releaseType: release

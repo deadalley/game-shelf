@@ -3,6 +3,7 @@
 //   npm run dev:mock                     dev mode with hot reload
 //   npm run dev:mock -- --reset          wipe the mock machine and mock settings first
 //   npm run dev:mock -- --games 500      add 500 generated Steam games (implies a rebuild)
+//   npm run dev:mock -- --update 9.9.9   pretend GameShelf 9.9.9 was released (or "none": up to date)
 //   npm run preview:mock                 same, against the production build
 //
 // Everything lives in .fixtures/: your real GameShelf settings and covers are never touched.
@@ -20,6 +21,8 @@ const reset = args.includes('--reset')
 const preview = args.includes('--preview')
 const gamesIdx = args.indexOf('--games')
 const games = gamesIdx >= 0 ? Number(args[gamesIdx + 1]) || 0 : 0
+const updateIdx = args.indexOf('--update')
+const fakeUpdate = updateIdx >= 0 ? args[updateIdx + 1] || '9.9.9' : undefined
 
 function run(command, env = {}) {
   return new Promise((done, fail) => {
@@ -70,5 +73,6 @@ if (!existsSync(join(userData, 'library.json'))) seedCustomGame()
 console.log(`\nStarting GameShelf with mock data\n  machine:  ${machine}\n  settings: ${userData}\n`)
 await run(preview ? 'npx electron-vite preview' : 'npx electron-vite dev', {
   GAMESHELF_FIXTURES: machine,
-  GAMESHELF_USER_DATA: userData
+  GAMESHELF_USER_DATA: userData,
+  ...(fakeUpdate ? { GAMESHELF_FAKE_UPDATE: fakeUpdate } : {})
 })
