@@ -36,15 +36,20 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: GameShelf-Setup
-          path: dist/*.exe
-          if-no-files-found: error
-
       - name: Attach installer to the release
         if: github.event_name == 'release'
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release upload "$GITHUB_REF_NAME" dist/*.exe --clobber
+
+      # Non-release builds keep the installer as a short-lived download. A full storage quota
+      # shouldn't fail an otherwise good build.
+      - uses: actions/upload-artifact@v4
+        if: github.event_name != 'release'
+        continue-on-error: true
+        with:
+          name: GameShelf-Setup
+          path: dist/*.exe
+          if-no-files-found: error
+          retention-days: 7
