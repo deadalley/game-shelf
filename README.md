@@ -125,6 +125,10 @@ scripts/             dev-mock.mjs (run on mock data) and make-fixtures.ts
 
 ### Releasing
 
+**Automatic:** bump `version` in `package.json` (e.g. `npm version 0.8.0 --no-git-tag-version`) and push to `main`. The build publishes release `v0.8.0` with the installer, the update files and notes listing the commits since the last release. Pushes that don't change the version only build.
+
+**By hand** (e.g. to write your own notes first):
+
 1. On GitHub, open **Releases → Draft a new release**.
 2. Create a new tag such as `v0.3.0` on `main`, add notes, and click **Publish release**.
 3. The workflow builds the installer on `windows-latest` and attaches `GameShelf-Setup-0.3.0.exe` to the release after about 10 minutes. The version comes from the tag. Progress is visible in the **Actions** tab.

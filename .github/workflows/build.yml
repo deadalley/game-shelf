@@ -6,8 +6,14 @@ on:
   pull_request:
   workflow_dispatch:
   # Publishing a release in the GitHub UI builds the installer and attaches it to that release.
+  # (Pushing a new version in package.json to main publishes one automatically; see below.)
   release:
     types: [published]
+
+# One build per branch at a time, so two quick pushes can't both publish the same version.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   windows:
@@ -16,6 +22,8 @@ jobs:
       contents: write # upload installers to releases
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # tags and history, for the release notes
 
       - uses: actions/setup-node@v4
         with:
@@ -25,6 +33,24 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
+
+      # A push to main whose package.json version has no release yet becomes that release.
+      - name: Is this a new version?
+        id: version
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="v$(node -p "require('./package.json').version")"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          if gh release view "$tag" >/dev/null 2>&1 || git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+            echo "new=false" >> "$GITHUB_OUTPUT"
+            echo "$tag is already released; building only."
+          else
+            echo "new=true" >> "$GITHUB_OUTPUT"
+            echo "$tag is new; this build will publish it."
+          fi
 
       - name: Use the release tag as the app version
         if: github.event_name == 'release'
@@ -48,10 +74,30 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: gh release upload "$GITHUB_REF_NAME" dist/*.exe dist/*.exe.blockmap dist/latest.yml --clobber
 
+      # Notes list the commits since the previous release. A release made with the workflow's own
+      # token doesn't trigger the "release published" build above, so nothing builds twice.
+      - name: Publish the new version as a release
+        if: steps.version.outputs.new == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          prev=$(git describe --tags --abbrev=0 --match 'v*' HEAD 2>/dev/null || true)
+          {
+            echo "## What's new"
+            echo
+            git log ${prev:+$prev..}HEAD --no-merges --pretty='- %s' | grep -v -i '^- bump version' || true
+            echo
+            echo "Download **GameShelf-Setup-${TAG#v}.exe** below. Installed copies (0.7.0 and later) offer the update on their own."
+          } > notes.md
+          gh release create "$TAG" dist/*.exe dist/*.exe.blockmap dist/latest.yml \
+            --target "$GITHUB_SHA" --title "$TAG" --notes-file notes.md
+
       # Non-release builds keep the installer as a short-lived download. A full storage quota
       # shouldn't fail an otherwise good build.
       - uses: actions/upload-artifact@v4
-        if: github.event_name != 'release'
+        if: github.event_name != 'release' && steps.version.outputs.new != 'true'
         continue-on-error: true
         with:
           name: GameShelf-Setup
