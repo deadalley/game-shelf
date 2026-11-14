@@ -1,7 +1,14 @@
 import { DEFAULT_SETTINGS, type ColorMode } from '@shared/types'
 import { coverSizePercent } from '../../lib/organize'
 import { useLibrary } from '../../state/useLibrary'
-import { LAYOUTS, Segmented, ThemePicker, WrapperPicker } from '../LayoutPicker'
+import {
+  LAYOUTS,
+  Segmented,
+  ShelfBackgroundSlider,
+  ThemePicker,
+  WrapperPicker,
+  shelfBackgroundLabel
+} from '../LayoutPicker'
 import { SettingRow, Switch } from './SettingsPage'
 
 const COLOR_MODES: { id: ColorMode; label: string }[] = [
@@ -49,23 +56,18 @@ export function AppearanceSection(): JSX.Element {
           <Switch on={s.shelfOnly} onChange={(on) => setShelfOnly(on)} label="Shelf only" />
         </SettingRow>
         <SettingRow
-          title="Background transparency"
+          title="Shelf background"
           description={
             acrylic
-              ? `${s.backgroundTransparency}%. Lets your desktop show through, blurred, behind the shelves.`
+              ? `${shelfBackgroundLabel(s.shelfBackground)}. Below 100% the wall behind the shelves dims and your desktop shows through, blurred; at 0% the wall is gone. Also in the toolbar's Shelf style menu.`
               : 'Needs Windows 11 (version 22H2 or later).'
           }
         >
-          <input
-            type="range"
-            min={0}
-            max={100}
-            step={5}
-            value={acrylic ? s.backgroundTransparency : 0}
-            disabled={!acrylic}
-            onChange={(e) => update({ backgroundTransparency: Number(e.target.value) })}
-            aria-label="Background transparency"
-            style={{ width: 200 }}
+          <ShelfBackgroundSlider
+            value={s.shelfBackground}
+            supported={acrylic}
+            onChange={(shelfBackground) => update({ shelfBackground })}
+            width={200}
           />
         </SettingRow>
         <SettingRow

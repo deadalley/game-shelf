@@ -103,7 +103,7 @@ export interface Settings {
   controllerHints: boolean // show the button hints bar while a controller is connected
   startFullscreen: boolean
   shelfOnly: boolean // hide all menus and buttons; only the shelves remain
-  backgroundTransparency: number // 0–100: how much of the (blurred) desktop shows behind the shelves
+  shelfBackground: number // 0–100: how solid the shelf wall is; 100 = solid, 1–99 = dimmed over blurred desktop, 0 = none
   colorMode: ColorMode
   animations: boolean
 }
@@ -126,7 +126,7 @@ export const DEFAULT_SETTINGS: Settings = {
   controllerHints: true,
   startFullscreen: false,
   shelfOnly: false,
-  backgroundTransparency: 0,
+  shelfBackground: 100,
   colorMode: 'system',
   animations: true
 }

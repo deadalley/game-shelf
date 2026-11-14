@@ -21,7 +21,7 @@ export function App(): JSX.Element {
   const colorMode = useLibrary((s) => s.settings.colorMode)
   const fullscreen = useLibrary((s) => s.fullscreen)
   const shelfOnly = useLibrary((s) => s.settings.shelfOnly)
-  const transparency = useLibrary((s) => s.settings.backgroundTransparency)
+  const shelfBackground = useLibrary((s) => s.settings.shelfBackground)
   const acrylic = useLibrary((s) => s.acrylic)
 
   useEffect(() => {
@@ -46,12 +46,12 @@ export function App(): JSX.Element {
     document.body.classList.toggle('shelf-only', shelfOnly)
   }, [shelfOnly])
 
-  // Background transparency only means something where the system draws a frosted desktop behind the window.
+  // The shelf background can only fade where the system can show the desktop behind the window.
   useEffect(() => {
-    const t = acrylic ? transparency : 0
-    document.documentElement.style.setProperty('--bg-alpha', String(1 - t / 100))
-    document.body.classList.toggle('translucent', t > 0)
-  }, [transparency, acrylic])
+    const level = acrylic ? shelfBackground : 100
+    document.documentElement.style.setProperty('--bg-alpha', String(level / 100))
+    document.body.classList.toggle('translucent', level < 100)
+  }, [shelfBackground, acrylic])
 
   // Esc leaves shelf-only mode when nothing else is open (otherwise Esc closes that first).
   // Capture phase: decide before the details panel's own Esc handler closes it.

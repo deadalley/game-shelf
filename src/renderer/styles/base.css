@@ -1,7 +1,8 @@
 :root {
-  /* Background transparency: 1 = solid; the app sets it from Settings → Appearance */
+  /* Shelf background: how solid the shelf wall is (1 = solid). Only the wall fades; the bars and
+     other screens stay solid. The app sets it from the Shelf style menu / Settings → Appearance. */
   --bg-alpha: 1;
-  --app-bg: color-mix(in srgb, var(--bg) calc(var(--bg-alpha) * 100%), transparent);
+  --app-bg: var(--bg);
   --bg: #f4f3f1;
   --surface: #ffffff;
   --surface-2: #ecebe8;
@@ -2221,8 +2222,8 @@ body.fullscreen .shelf-only-exit {
   transform: scale(1.06);
 }
 
-/* With background transparency on, the shelf wall and the bars carry their own faded backgrounds;
-   the page underneath stays clear so the two don't stack into a more opaque result. */
+/* With the shelf background below 100%, the page underneath stays clear so only the faded wall
+   (and the solid bars) are drawn. */
 body.translucent {
   background: transparent;
 }

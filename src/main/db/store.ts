@@ -40,13 +40,27 @@ const EMPTY: StoreData = {
 const SORTS: Settings['sort'][] = ['name', 'lastPlayed', 'playtime']
 const LAYOUTS: Settings['layout'][] = ['flat', 'stacked']
 
+function clampPercent(n: number): number {
+  return Math.min(100, Math.max(0, Math.round(n)))
+}
+
+/** Pre-release builds stored the inverse as "backgroundTransparency"; carry that over. */
+export function migrateSettings(raw: Partial<Settings> & { backgroundTransparency?: unknown }): Partial<Settings> {
+  const { backgroundTransparency, ...rest } = raw
+  const old = Number(backgroundTransparency)
+  if (rest.shelfBackground === undefined && backgroundTransparency !== undefined && Number.isFinite(old)) {
+    rest.shelfBackground = 100 - old
+  }
+  return rest
+}
+
 /** Fixes values saved by older versions that no longer exist (e.g. the removed "Recently installed" sort). */
 export function sanitizeSettings(s: Settings): Settings {
   return {
     ...s,
     sort: SORTS.includes(s.sort) ? s.sort : 'name',
     layout: LAYOUTS.includes(s.layout) ? s.layout : 'flat',
-    backgroundTransparency: Math.min(100, Math.max(0, Math.round(Number(s.backgroundTransparency) || 0)))
+    shelfBackground: clampPercent(Number.isFinite(Number(s.shelfBackground)) ? Number(s.shelfBackground) : 100)
   }
 }
 
@@ -66,7 +80,7 @@ export class Store {
       return {
         ...EMPTY,
         ...raw,
-        settings: sanitizeSettings({ ...DEFAULT_SETTINGS, ...raw.settings }),
+        settings: sanitizeSettings({ ...DEFAULT_SETTINGS, ...migrateSettings(raw.settings ?? {}) }),
         scanned: { ...EMPTY.scanned, ...raw.scanned }
       }
     } catch {

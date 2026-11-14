@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_SETTINGS } from '@shared/types'
-import { sanitizeSettings, type StoreData } from '../src/main/db/store'
+import { migrateSettings, sanitizeSettings, type StoreData } from '../src/main/db/store'
 import { buildGames } from '../src/main/library'
 import { splitArgs } from '../src/main/util/args'
 import { parseRegOutput } from '../src/main/util/registry'
@@ -135,12 +135,18 @@ describe('disabled libraries', () => {
 })
 
 describe('settings from older or hand-edited files', () => {
-  it('clamps background transparency and fixes removed options', () => {
+  it('clamps the shelf background and fixes removed options', () => {
     const fix = (patch: Partial<typeof DEFAULT_SETTINGS>) => sanitizeSettings({ ...DEFAULT_SETTINGS, ...patch })
-    expect(fix({ backgroundTransparency: 150 }).backgroundTransparency).toBe(100)
-    expect(fix({ backgroundTransparency: -5 }).backgroundTransparency).toBe(0)
-    expect(fix({ backgroundTransparency: 37.4 }).backgroundTransparency).toBe(37)
-    expect(fix({ backgroundTransparency: undefined as unknown as number }).backgroundTransparency).toBe(0)
+    expect(fix({ shelfBackground: 150 }).shelfBackground).toBe(100)
+    expect(fix({ shelfBackground: -5 }).shelfBackground).toBe(0)
+    expect(fix({ shelfBackground: 37.4 }).shelfBackground).toBe(37)
+    expect(fix({ shelfBackground: 'x' as unknown as number }).shelfBackground).toBe(100)
     expect(fix({ sort: 'installedAt' as never }).sort).toBe('name')
+  })
+
+  it('carries over the pre-release transparency setting as its inverse', () => {
+    expect(migrateSettings({ backgroundTransparency: 30 })).toEqual({ shelfBackground: 70 })
+    expect(migrateSettings({ backgroundTransparency: 30, shelfBackground: 50 })).toEqual({ shelfBackground: 50 })
+    expect(migrateSettings({ theme: 'old' })).toEqual({ theme: 'old' })
   })
 })

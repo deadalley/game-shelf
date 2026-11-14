@@ -5,7 +5,15 @@ import { SERVICES, SERVICE_LABELS, type InstallFilter, type Service } from '@sha
 import { coverSizePercent } from '../lib/organize'
 import { SERVICE_COLORS } from '../lib/services'
 import { useLibrary } from '../state/useLibrary'
-import { GROUPS, SORTS, Segmented, ThemePicker, WrapperPicker } from './LayoutPicker'
+import {
+  GROUPS,
+  SORTS,
+  Segmented,
+  ShelfBackgroundSlider,
+  ThemePicker,
+  WrapperPicker,
+  shelfBackgroundLabel
+} from './LayoutPicker'
 import { MenuItem, Popover, SwitchRow } from './Popover'
 
 const INSTALL: { id: InstallFilter; label: string }[] = [
@@ -18,6 +26,7 @@ export function Toolbar(): JSX.Element {
   const settings = useLibrary((s) => s.settings)
   const games = useLibrary((s) => s.library.games)
   const update = useLibrary((s) => s.updateSettings)
+  const acrylic = useLibrary((s) => s.acrylic)
 
   const counts = useMemo(() => {
     const c = {} as Record<Service, number>
@@ -193,6 +202,17 @@ export function Toolbar(): JSX.Element {
         <ThemePicker value={settings.theme} onChange={(theme) => update({ theme })} />
         <h4>Covers</h4>
         <WrapperPicker value={settings.wrapper} onChange={(wrapper) => update({ wrapper })} />
+        <div className="range-row">
+          <label>
+            <span>Background</span>
+            <span>{acrylic ? shelfBackgroundLabel(settings.shelfBackground) : 'Needs Windows 11'}</span>
+          </label>
+          <ShelfBackgroundSlider
+            value={settings.shelfBackground}
+            supported={acrylic}
+            onChange={(shelfBackground) => update({ shelfBackground })}
+          />
+        </div>
       </Popover>
     </div>
   )

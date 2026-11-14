@@ -124,3 +124,36 @@ export function Segmented<T extends string>({
     </div>
   )
 }
+
+/** How solid the shelf wall is: 100% is the normal wall, lower dims it over the blurred desktop, 0% removes it. */
+export function shelfBackgroundLabel(value: number): string {
+  if (value >= 100) return 'Solid'
+  if (value <= 0) return 'None'
+  return `${value}%`
+}
+
+export function ShelfBackgroundSlider({
+  value,
+  supported,
+  onChange,
+  width
+}: {
+  value: number
+  supported: boolean
+  onChange(value: number): void
+  width?: number
+}): JSX.Element {
+  return (
+    <input
+      type="range"
+      min={0}
+      max={100}
+      step={5}
+      value={supported ? value : 100}
+      disabled={!supported}
+      onChange={(e) => onChange(Number(e.target.value))}
+      aria-label="Shelf background"
+      style={width ? { width } : undefined}
+    />
+  )
+}

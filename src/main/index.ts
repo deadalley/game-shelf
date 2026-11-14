@@ -218,7 +218,7 @@ function registerIpc(): void {
       refreshCovers()
     }
     if (patch.colorMode !== undefined) nativeTheme.themeSource = next.colorMode
-    if (patch.backgroundTransparency !== undefined || patch.colorMode !== undefined) applyBackdrop()
+    if (patch.shelfBackground !== undefined || patch.colorMode !== undefined) applyBackdrop()
     if (patch.disabledServices !== undefined) {
       const enabled = prev.disabledServices.filter((s) => !next.disabledServices.includes(s))
       if (enabled.length) void rescan().then(() => broadcast())
@@ -246,8 +246,10 @@ function registerIpc(): void {
 }
 
 /**
- * Frosted-glass background: Windows 11 (22H2+) draws a blurred "acrylic" desktop behind the page
- * wherever the page itself is transparent. GAMESHELF_FAKE_ACRYLIC lets tests exercise the setting elsewhere.
+ * Shelf background: below 100% the shelf wall fades and the desktop shows through.
+ * 1–99% puts Windows 11's (22H2+) blurred "acrylic" material behind it; 0% has no wall and no blur.
+ * The page itself fades the wall; this only sets what the window shows behind the page.
+ * GAMESHELF_FAKE_ACRYLIC lets tests exercise the setting elsewhere.
  */
 const fakeAcrylic = process.env.GAMESHELF_FAKE_ACRYLIC === '1'
 const acrylicSupported = fakeAcrylic || (process.platform === 'win32' && Number(release().split('.')[2] ?? 0) >= 22621)
@@ -258,9 +260,11 @@ function solidBackground(): string {
 
 function applyBackdrop(): void {
   if (!win) return
-  const translucent = acrylicSupported && store.data.settings.backgroundTransparency > 0
-  win.setBackgroundColor(translucent ? '#00000000' : solidBackground())
-  if (process.platform === 'win32' && !fakeAcrylic) win.setBackgroundMaterial(translucent ? 'acrylic' : 'none')
+  const level = acrylicSupported ? store.data.settings.shelfBackground : 100
+  win.setBackgroundColor(level < 100 ? '#00000000' : solidBackground())
+  if (process.platform === 'win32' && acrylicSupported && !fakeAcrylic) {
+    win.setBackgroundMaterial(level > 0 && level < 100 ? 'acrylic' : 'none')
+  }
 }
 
 function toggleFullscreen(): boolean {
@@ -278,9 +282,12 @@ function createWindow(): void {
     minHeight: 600,
     show: false,
     title: 'GameShelf',
-    backgroundColor: solidBackground(),
+    backgroundColor: acrylicSupported && store.data.settings.shelfBackground < 100 ? '#00000000' : solidBackground(),
     titleBarStyle: 'hidden',
     titleBarOverlay: { color: '#00000000', symbolColor: dark ? '#d8d6d2' : '#3b3a37', height: 52 },
+    // Windows only lets the page blend over the desktop if the window is created with a material;
+    // set later, see-through areas render dark instead. applyBackdrop() switches it per setting.
+    ...(acrylicSupported && !fakeAcrylic ? { backgroundMaterial: 'acrylic' as const } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: true,
