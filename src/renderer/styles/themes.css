@@ -43,7 +43,26 @@
 .stage {
   --plank-h: 0px;
   --plank-overhang: 32px;
-  transition: background 0.5s var(--ease);
+  /* Each theme's wall; painted by .stage-inner::before so it can fade (background transparency)
+     without fading the planks and covers in front of it. */
+  --stage-bg: var(--bg);
+  background: none;
+}
+
+.stage-inner {
+  position: relative;
+  isolation: isolate;
+}
+
+.stage-inner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--stage-bg);
+  opacity: var(--bg-alpha, 1);
+  transition: opacity 0.3s var(--ease);
 }
 
 .plank {
@@ -64,7 +83,7 @@
 /* ---------- Clean ---------- */
 
 .theme-clean {
-  background: var(--bg);
+  --stage-bg: var(--bg);
   --row-space: 30px;
 }
 
@@ -84,8 +103,7 @@
   --cover-radius: 3px;
   --cover-shadow: 6px 0 10px -4px rgba(0, 0, 0, 0.55), -2px 0 6px -3px rgba(0, 0, 0, 0.4), 0 2px 3px rgba(0, 0, 0, 0.5);
   --cover-shadow-hover: 10px 6px 22px rgba(0, 0, 0, 0.6);
-  background-color: #3a2416;
-  background-image:
+  --stage-bg:
     radial-gradient(ellipse at 50% 0%, rgba(255, 200, 140, 0.18), transparent 60%),
     repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.22) 0 2px, transparent 2px 180px),
     repeating-linear-gradient(
@@ -96,17 +114,26 @@
       transparent 9px 23px
     ),
     linear-gradient(180deg, #4a2e1c, #2e1c10);
-  background-attachment: local;
 }
 
 .theme-old .stage-inner {
+  padding-left: 58px;
+  padding-right: 58px;
+}
+
+/* The bookcase's side panels, part of the wall so they fade with it */
+.theme-old .stage-inner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
   box-shadow:
     inset 22px 0 0 #5b3920,
     inset 26px 0 10px rgba(0, 0, 0, 0.45),
     inset -22px 0 0 #5b3920,
     inset -26px 0 10px rgba(0, 0, 0, 0.45);
-  padding-left: 58px;
-  padding-right: 58px;
+  opacity: var(--bg-alpha, 1);
 }
 
 .theme-old .plank {
@@ -153,11 +180,10 @@
   --cover-radius: 6px;
   --cover-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.35), 0 2px 4px rgba(0, 0, 0, 0.12);
   --cover-shadow-hover: 0 22px 40px -12px rgba(0, 0, 0, 0.45);
-  background:
+  --stage-bg:
     radial-gradient(1200px 500px at 15% -10%, color-mix(in srgb, var(--surface) 90%, #c9c3b8), transparent 70%),
     radial-gradient(900px 500px at 100% 0%, color-mix(in srgb, var(--surface-2) 85%, #b8bec6), transparent 70%),
     var(--bg);
-  background-attachment: local;
 }
 
 .theme-modern .plank {
@@ -193,10 +219,9 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) .theme-modern {
-    background:
+    --stage-bg:
       radial-gradient(1200px 500px at 15% -10%, #2a2a2f, transparent 70%),
       radial-gradient(900px 500px at 100% 0%, #24262b, transparent 70%), #151517;
-    background-attachment: local;
   }
   :root:not([data-theme='light']) .theme-modern .plank {
     background:
@@ -213,10 +238,9 @@
 }
 
 :root[data-theme='dark'] .theme-modern {
-  background:
+  --stage-bg:
     radial-gradient(1200px 500px at 15% -10%, #2a2a2f, transparent 70%),
     radial-gradient(900px 500px at 100% 0%, #24262b, transparent 70%), #151517;
-  background-attachment: local;
 }
 :root[data-theme='dark'] .theme-modern .plank {
   background:
@@ -244,11 +268,11 @@
   --shelf-text: #fff6dc;
   --shelf-text-2: #b9b0d8;
   --pixel-font: 'Press Start 2P', monospace;
-  background-color: #2b2147;
   /* Brick wall drawn from 4px "pixels" */
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='32' shape-rendering='crispEdges'><rect width='64' height='32' fill='%232b2147'/><rect y='0' width='64' height='4' fill='%231f1838'/><rect y='16' width='64' height='4' fill='%231f1838'/><rect x='0' y='4' width='4' height='12' fill='%231f1838'/><rect x='32' y='20' width='4' height='12' fill='%231f1838'/><rect x='8' y='8' width='8' height='4' fill='%23342957'/><rect x='44' y='24' width='4' height='4' fill='%23342957'/></svg>");
-  background-size: 64px 32px;
-  background-attachment: local;
+  --stage-bg:
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='32' shape-rendering='crispEdges'><rect width='64' height='32' fill='%232b2147'/><rect y='0' width='64' height='4' fill='%231f1838'/><rect y='16' width='64' height='4' fill='%231f1838'/><rect x='0' y='4' width='4' height='12' fill='%231f1838'/><rect x='32' y='20' width='4' height='12' fill='%231f1838'/><rect x='8' y='8' width='8' height='4' fill='%23342957'/><rect x='44' y='24' width='4' height='4' fill='%23342957'/></svg>")
+      0 0 / 64px 32px,
+    #2b2147;
   image-rendering: pixelated;
 }
 

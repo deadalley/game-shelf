@@ -156,7 +156,8 @@ export function ControllerSection(): JSX.Element {
     ['LT/RT', 'Jump a page up / down'],
     ['View', 'Switch between Flat and Stacked'],
     ['Menu', 'Open / close Settings'],
-    ['LS', 'Fullscreen on / off (click the left stick)']
+    ['LS', 'Fullscreen on / off (click the left stick)'],
+    ['RS', 'Shelf only on / off (click the right stick)']
   ]
   return (
     <>

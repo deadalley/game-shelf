@@ -45,7 +45,8 @@ export function sanitizeSettings(s: Settings): Settings {
   return {
     ...s,
     sort: SORTS.includes(s.sort) ? s.sort : 'name',
-    layout: LAYOUTS.includes(s.layout) ? s.layout : 'flat'
+    layout: LAYOUTS.includes(s.layout) ? s.layout : 'flat',
+    backgroundTransparency: Math.min(100, Math.max(0, Math.round(Number(s.backgroundTransparency) || 0)))
   }
 }
 

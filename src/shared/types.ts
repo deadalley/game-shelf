@@ -102,6 +102,8 @@ export interface Settings {
   controller: boolean // navigate with a gamepad
   controllerHints: boolean // show the button hints bar while a controller is connected
   startFullscreen: boolean
+  shelfOnly: boolean // hide all menus and buttons; only the shelves remain
+  backgroundTransparency: number // 0–100: how much of the (blurred) desktop shows behind the shelves
   colorMode: ColorMode
   animations: boolean
 }
@@ -123,6 +125,8 @@ export const DEFAULT_SETTINGS: Settings = {
   controller: true,
   controllerHints: true,
   startFullscreen: false,
+  shelfOnly: false,
+  backgroundTransparency: 0,
   colorMode: 'system',
   animations: true
 }
@@ -157,7 +161,7 @@ export interface GameShelfApi {
   setSettings(patch: Partial<Settings>): Promise<Settings>
   refreshCovers(): Promise<void>
   openDataFolder(): Promise<void>
-  getAppInfo(): Promise<{ version: string; dataPath: string; mock: boolean }>
+  getAppInfo(): Promise<{ version: string; dataPath: string; mock: boolean; acrylic: boolean }>
   onLibraryChanged(cb: (lib: LibraryPayload) => void): () => void
   toggleFullscreen(): Promise<boolean>
   isFullscreen(): Promise<boolean>

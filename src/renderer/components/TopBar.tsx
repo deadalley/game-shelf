@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { Maximize, Minimize, Plus, RefreshCw, Search, Settings2 } from 'lucide-react'
+import { Eye, Maximize, Minimize, Plus, RefreshCw, Search, Settings2 } from 'lucide-react'
 import appIcon from '../assets/app-icon.png'
 import { useLibrary } from '../state/useLibrary'
 
@@ -9,6 +9,7 @@ export function TopBar(): JSX.Element {
   const settingsOpen = useLibrary((s) => s.settingsOpen)
   const fullscreen = useLibrary((s) => s.fullscreen)
   const toggleFullscreen = useLibrary((s) => s.toggleFullscreen)
+  const setShelfOnly = useLibrary((s) => s.setShelfOnly)
   const total = useLibrary((s) => s.library.games.filter((g) => !g.hidden).length)
   const { setSearch, rescan, setAddOpen, setSettingsOpen } = useLibrary.getState()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -54,6 +55,9 @@ export function TopBar(): JSX.Element {
           disabled={scanning}
         >
           <RefreshCw size={16} className={scanning ? 'spin' : ''} />
+        </button>
+        <button className="btn ghost icon" title="Shelf only: hide all menus" onClick={() => setShelfOnly(true)}>
+          <Eye size={16} />
         </button>
         <button
           className="btn ghost icon"

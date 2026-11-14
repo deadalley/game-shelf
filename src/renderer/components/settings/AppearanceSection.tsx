@@ -15,6 +15,8 @@ export function AppearanceSection(): JSX.Element {
   const update = useLibrary((st) => st.updateSettings)
   const fullscreen = useLibrary((st) => st.fullscreen)
   const toggleFullscreen = useLibrary((st) => st.toggleFullscreen)
+  const setShelfOnly = useLibrary((st) => st.setShelfOnly)
+  const acrylic = useLibrary((st) => st.acrylic)
   return (
     <>
       <h3>Shelf</h3>
@@ -38,6 +40,33 @@ export function AppearanceSection(): JSX.Element {
           onClick={() => void toggleFullscreen()}
         >
           <Switch on={fullscreen} onChange={() => void toggleFullscreen()} label="Fullscreen" />
+        </SettingRow>
+        <SettingRow
+          title="Shelf only"
+          description="Hide every menu and button so only the shelves are on screen. Bring them back with the button at the top, Esc, or the controller's right stick. Combine with fullscreen to hide the window buttons too."
+          onClick={() => setShelfOnly(!s.shelfOnly)}
+        >
+          <Switch on={s.shelfOnly} onChange={(on) => setShelfOnly(on)} label="Shelf only" />
+        </SettingRow>
+        <SettingRow
+          title="Background transparency"
+          description={
+            acrylic
+              ? `${s.backgroundTransparency}%. Lets your desktop show through, blurred, behind the shelves.`
+              : 'Needs Windows 11 (version 22H2 or later).'
+          }
+        >
+          <input
+            type="range"
+            min={0}
+            max={100}
+            step={5}
+            value={acrylic ? s.backgroundTransparency : 0}
+            disabled={!acrylic}
+            onChange={(e) => update({ backgroundTransparency: Number(e.target.value) })}
+            aria-label="Background transparency"
+            style={{ width: 200 }}
+          />
         </SettingRow>
         <SettingRow
           title="Start in fullscreen"

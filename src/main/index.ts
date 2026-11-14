@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { release } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { BrowserWindow, Menu, app, dialog, ipcMain, nativeTheme, net, protocol, shell } from 'electron'
@@ -217,6 +218,7 @@ function registerIpc(): void {
       refreshCovers()
     }
     if (patch.colorMode !== undefined) nativeTheme.themeSource = next.colorMode
+    if (patch.backgroundTransparency !== undefined || patch.colorMode !== undefined) applyBackdrop()
     if (patch.disabledServices !== undefined) {
       const enabled = prev.disabledServices.filter((s) => !next.disabledServices.includes(s))
       if (enabled.length) void rescan().then(() => broadcast())
@@ -238,8 +240,27 @@ function registerIpc(): void {
   ipcMain.handle('app:info', () => ({
     version,
     dataPath: app.getPath('userData'),
-    mock: !!process.env.GAMESHELF_FIXTURES
+    mock: !!process.env.GAMESHELF_FIXTURES,
+    acrylic: acrylicSupported
   }))
+}
+
+/**
+ * Frosted-glass background: Windows 11 (22H2+) draws a blurred "acrylic" desktop behind the page
+ * wherever the page itself is transparent. GAMESHELF_FAKE_ACRYLIC lets tests exercise the setting elsewhere.
+ */
+const fakeAcrylic = process.env.GAMESHELF_FAKE_ACRYLIC === '1'
+const acrylicSupported = fakeAcrylic || (process.platform === 'win32' && Number(release().split('.')[2] ?? 0) >= 22621)
+
+function solidBackground(): string {
+  return nativeTheme.shouldUseDarkColors ? '#17171a' : '#f4f3f1'
+}
+
+function applyBackdrop(): void {
+  if (!win) return
+  const translucent = acrylicSupported && store.data.settings.backgroundTransparency > 0
+  win.setBackgroundColor(translucent ? '#00000000' : solidBackground())
+  if (process.platform === 'win32' && !fakeAcrylic) win.setBackgroundMaterial(translucent ? 'acrylic' : 'none')
 }
 
 function toggleFullscreen(): boolean {
@@ -257,7 +278,7 @@ function createWindow(): void {
     minHeight: 600,
     show: false,
     title: 'GameShelf',
-    backgroundColor: dark ? '#17171a' : '#f4f3f1',
+    backgroundColor: solidBackground(),
     titleBarStyle: 'hidden',
     titleBarOverlay: { color: '#00000000', symbolColor: dark ? '#d8d6d2' : '#3b3a37', height: 52 },
     webPreferences: {
@@ -269,6 +290,7 @@ function createWindow(): void {
   })
 
   win.once('ready-to-show', () => {
+    applyBackdrop()
     if (store.data.settings.startFullscreen) win?.setFullScreen(true)
     win?.show()
   })
@@ -281,6 +303,7 @@ function createWindow(): void {
   win.webContents.on('will-navigate', (e) => e.preventDefault())
   nativeTheme.on('updated', () => {
     win?.setTitleBarOverlay?.({ symbolColor: nativeTheme.shouldUseDarkColors ? '#d8d6d2' : '#3b3a37' })
+    applyBackdrop()
   })
 
   if (process.env.ELECTRON_RENDERER_URL) {

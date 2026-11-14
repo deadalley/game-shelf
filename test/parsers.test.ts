@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_SETTINGS } from '@shared/types'
-import type { StoreData } from '../src/main/db/store'
+import { sanitizeSettings, type StoreData } from '../src/main/db/store'
 import { buildGames } from '../src/main/library'
 import { splitArgs } from '../src/main/util/args'
 import { parseRegOutput } from '../src/main/util/registry'
@@ -131,5 +131,16 @@ describe('disabled libraries', () => {
       covers: {}
     }
     expect(buildGames(data).map((g) => g.id)).toEqual(['gog:1', 'custom:x'])
+  })
+})
+
+describe('settings from older or hand-edited files', () => {
+  it('clamps background transparency and fixes removed options', () => {
+    const fix = (patch: Partial<typeof DEFAULT_SETTINGS>) => sanitizeSettings({ ...DEFAULT_SETTINGS, ...patch })
+    expect(fix({ backgroundTransparency: 150 }).backgroundTransparency).toBe(100)
+    expect(fix({ backgroundTransparency: -5 }).backgroundTransparency).toBe(0)
+    expect(fix({ backgroundTransparency: 37.4 }).backgroundTransparency).toBe(37)
+    expect(fix({ backgroundTransparency: undefined as unknown as number }).backgroundTransparency).toBe(0)
+    expect(fix({ sort: 'installedAt' as never }).sort).toBe('name')
   })
 })

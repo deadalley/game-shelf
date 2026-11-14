@@ -26,6 +26,8 @@ interface LibraryState {
   toasts: Toast[]
   controller: ControllerState
   fullscreen: boolean
+  /** Whether this system can show the frosted-glass background (Windows 11 22H2+). */
+  acrylic: boolean
 
   init(): Promise<void>
   rescan(): Promise<void>
@@ -44,11 +46,11 @@ interface LibraryState {
   dismissToast(id: number): void
   setController(patch: Partial<ControllerState>): void
   toggleFullscreen(): Promise<void>
+  setShelfOnly(on: boolean): void
 }
 
 const api = window.gameshelf
 let toastId = 0
-let saveTimer: ReturnType<typeof setTimeout> | null = null
 
 export const useLibrary = create<LibraryState>((set, get) => ({
   ready: false,
@@ -64,6 +66,7 @@ export const useLibrary = create<LibraryState>((set, get) => ({
   toasts: [],
   controller: { connected: false, context: 'shelf' },
   fullscreen: false,
+  acrylic: false,
 
   async init() {
     const [library, settings] = await Promise.all([api.getLibrary(), api.getSettings()])
@@ -72,6 +75,7 @@ export const useLibrary = create<LibraryState>((set, get) => ({
     api.onLibraryChanged((lib) => set({ library: lib, scanning: false }))
     api.onFullscreenChanged((fullscreen) => set({ fullscreen }))
     set({ fullscreen: await api.isFullscreen() })
+    set({ acrylic: (await api.getAppInfo()).acrylic })
   },
 
   async rescan() {
@@ -87,8 +91,8 @@ export const useLibrary = create<LibraryState>((set, get) => ({
 
   updateSettings(patch) {
     set({ settings: { ...get().settings, ...patch } })
-    if (saveTimer) clearTimeout(saveTimer)
-    saveTimer = setTimeout(() => void api.setSettings(get().settings), 250)
+    // Send right away so a change made just before quitting isn't lost; the main process batches the disk write.
+    void api.setSettings(patch)
   },
 
   setSearch: (search) => set({ search }),
@@ -128,6 +132,11 @@ export const useLibrary = create<LibraryState>((set, get) => ({
     const id = ++toastId
     set({ toasts: [...get().toasts, { id, text, kind, action }] })
     setTimeout(() => get().dismissToast(id), action ? 6000 : 3500)
+  },
+
+  setShelfOnly(on) {
+    if (on) set({ settingsOpen: false })
+    get().updateSettings({ shelfOnly: on })
   },
 
   async toggleFullscreen() {

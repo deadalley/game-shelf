@@ -11,6 +11,7 @@ export const BTN = {
   VIEW: 8,
   MENU: 9,
   LS: 10,
+  RS: 11,
   UP: 12,
   DOWN: 13,
   LEFT: 14,

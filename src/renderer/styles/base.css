@@ -1,4 +1,7 @@
 :root {
+  /* Background transparency: 1 = solid; the app sets it from Settings → Appearance */
+  --bg-alpha: 1;
+  --app-bg: color-mix(in srgb, var(--bg) calc(var(--bg-alpha) * 100%), transparent);
   --bg: #f4f3f1;
   --surface: #ffffff;
   --surface-2: #ecebe8;
@@ -75,7 +78,7 @@ body,
 }
 
 body {
-  background: var(--bg);
+  background: var(--app-bg);
   color: var(--text);
   font-family: var(--font);
   font-size: 13.5px;
@@ -136,7 +139,7 @@ textarea {
   align-items: center;
   gap: 16px;
   padding: 0 calc(140px + 8px) 0 16px; /* leave room for the window controls overlay */
-  background: var(--bg);
+  background: var(--app-bg);
 }
 
 .titlebar > * {
@@ -321,7 +324,7 @@ a {
   gap: 10px;
   padding: 6px 16px 12px;
   border-bottom: 1px solid var(--border);
-  background: var(--bg);
+  background: var(--app-bg);
   position: relative;
   /* Above the details panel (61) so toolbar menus open over it */
   z-index: 65;
@@ -1496,7 +1499,7 @@ button.switch {
   z-index: 66;
   display: grid;
   grid-template-columns: 240px 1fr;
-  background: var(--bg);
+  background: var(--app-bg);
   border-top: 1px solid var(--border);
 }
 
@@ -2144,4 +2147,82 @@ body.has-pad-hints .toasts {
 /* Windows hides the window controls in fullscreen, so the space kept for them isn't needed */
 body.fullscreen .titlebar {
   padding-right: 16px;
+}
+
+/* ---------- Shelf-only mode ---------- */
+
+body.shelf-only .titlebar,
+body.shelf-only .toolbar,
+body.shelf-only .pad-hints,
+body.shelf-only .hide-btn {
+  display: none;
+}
+
+body.shelf-only .app {
+  grid-template-rows: 1fr;
+}
+
+/* Room for the exit button so it never covers the first row */
+body.shelf-only .stage-inner {
+  padding-top: 64px;
+}
+
+/* An invisible strip along the top keeps the window draggable without a title bar */
+.shelf-only-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 140px;
+  height: 44px;
+  z-index: 64;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  -webkit-app-region: drag;
+  pointer-events: none;
+}
+
+body.fullscreen .shelf-only-top {
+  right: 0;
+}
+
+.shelf-only-exit {
+  -webkit-app-region: no-drag;
+  pointer-events: auto;
+  width: 36px;
+  height: 36px;
+  margin-left: 140px; /* stays centred on the window, not on the strip */
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: var(--text);
+  background: color-mix(in srgb, var(--surface) 75%, transparent);
+  backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow: var(--shadow-md);
+  opacity: 0.35;
+  transition:
+    opacity 0.25s var(--ease),
+    transform 0.2s var(--ease);
+}
+
+body.fullscreen .shelf-only-exit {
+  margin-left: 0;
+}
+
+.shelf-only-top:hover .shelf-only-exit,
+.shelf-only-exit:hover,
+.shelf-only-exit:focus-visible {
+  opacity: 1;
+}
+
+.shelf-only-exit:hover {
+  transform: scale(1.06);
+}
+
+/* With background transparency on, the shelf wall and the bars carry their own faded backgrounds;
+   the page underneath stays clear so the two don't stack into a more opaque result. */
+body.translucent {
+  background: transparent;
 }

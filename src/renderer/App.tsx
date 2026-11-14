@@ -3,6 +3,7 @@ import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import { AddGameDialog } from './components/AddGameDialog'
 import { ControllerHints } from './components/ControllerHints'
+import { ShelfOnlyExit } from './components/ShelfOnlyExit'
 import { EditGameDialog } from './components/EditGameDialog'
 import { GameDrawer } from './components/GameDrawer'
 import { SettingsPage } from './components/settings/SettingsPage'
@@ -19,6 +20,9 @@ export function App(): JSX.Element {
   const dismissToast = useLibrary((s) => s.dismissToast)
   const colorMode = useLibrary((s) => s.settings.colorMode)
   const fullscreen = useLibrary((s) => s.fullscreen)
+  const shelfOnly = useLibrary((s) => s.settings.shelfOnly)
+  const transparency = useLibrary((s) => s.settings.backgroundTransparency)
+  const acrylic = useLibrary((s) => s.acrylic)
 
   useEffect(() => {
     void useLibrary.getState().init()
@@ -37,6 +41,31 @@ export function App(): JSX.Element {
   useEffect(() => {
     document.body.classList.toggle('fullscreen', fullscreen)
   }, [fullscreen])
+
+  useEffect(() => {
+    document.body.classList.toggle('shelf-only', shelfOnly)
+  }, [shelfOnly])
+
+  // Background transparency only means something where the system draws a frosted desktop behind the window.
+  useEffect(() => {
+    const t = acrylic ? transparency : 0
+    document.documentElement.style.setProperty('--bg-alpha', String(1 - t / 100))
+    document.body.classList.toggle('translucent', t > 0)
+  }, [transparency, acrylic])
+
+  // Esc leaves shelf-only mode when nothing else is open (otherwise Esc closes that first).
+  // Capture phase: decide before the details panel's own Esc handler closes it.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent): void => {
+      if (e.key !== 'Escape' || e.defaultPrevented) return
+      const s = useLibrary.getState()
+      if (!s.settings.shelfOnly || s.selectedId || s.editingId || s.addOpen || s.settingsOpen) return
+      if (document.querySelector('.context-menu, .popover, .dialog')) return
+      s.setShelfOnly(false)
+    }
+    window.addEventListener('keydown', onKey, true)
+    return () => window.removeEventListener('keydown', onKey, true)
+  }, [])
 
   // F11 toggles fullscreen from anywhere in the app, including text fields.
   useEffect(() => {
@@ -73,6 +102,7 @@ export function App(): JSX.Element {
       <EditGameDialog />
       <AddGameDialog />
       <ControllerHints />
+      <ShelfOnlyExit />
       <div className="toasts" aria-live="polite">
         <AnimatePresence>
           {toasts.map((t) => (
