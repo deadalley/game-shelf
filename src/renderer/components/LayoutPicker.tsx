@@ -125,7 +125,7 @@ export function Segmented<T extends string>({
   )
 }
 
-/** How solid the shelf wall is: 100% is the normal wall, lower dims it over the blurred desktop, 0% removes it. */
+/** How solid the shelf wall is: 100% is the normal wall, lower dims it over the blurred desktop, 0% leaves only the blur. */
 export function shelfBackgroundLabel(value: number): string {
   if (value >= 100) return 'Solid'
   if (value <= 0) return 'None'

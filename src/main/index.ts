@@ -256,7 +256,7 @@ function registerIpc(): void {
 
 /**
  * Shelf background: below 100% the shelf wall fades and the desktop shows through.
- * 1–99% puts Windows 11's (22H2+) blurred "acrylic" material behind it; 0% has no wall and no blur.
+ * Below 100% Windows 11's (22H2+) blurred "acrylic" material shows behind it; at 0% only the blur is left.
  * The page itself fades the wall; this only sets what the window shows behind the page.
  * GAMESHELF_FAKE_ACRYLIC lets tests exercise the setting elsewhere.
  */
@@ -272,7 +272,8 @@ function applyBackdrop(): void {
   const level = acrylicSupported ? store.data.settings.shelfBackground : 100
   win.setBackgroundColor(level < 100 ? '#00000000' : solidBackground())
   if (process.platform === 'win32' && acrylicSupported && !fakeAcrylic) {
-    win.setBackgroundMaterial(level > 0 && level < 100 ? 'acrylic' : 'none')
+    // Even at 0% the blur stays: without a material Windows paints see-through areas solid.
+    win.setBackgroundMaterial(level < 100 ? 'acrylic' : 'none')
   }
 }
 

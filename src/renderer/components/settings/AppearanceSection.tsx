@@ -59,7 +59,7 @@ export function AppearanceSection(): JSX.Element {
           title="Shelf background"
           description={
             acrylic
-              ? `${shelfBackgroundLabel(s.shelfBackground)}. Below 100% the wall behind the shelves dims and your desktop shows through, blurred; at 0% the wall is gone. Also in the toolbar's Shelf style menu.`
+              ? `${shelfBackgroundLabel(s.shelfBackground)}. Below 100% the wall behind the shelves dims and your desktop shows through, blurred; at 0% the wall is gone and only the blurred desktop is left. Also in the toolbar's Shelf style menu.`
               : 'Needs Windows 11 (version 22H2 or later).'
           }
         >
